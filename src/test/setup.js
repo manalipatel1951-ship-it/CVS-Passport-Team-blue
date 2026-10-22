@@ -9,3 +9,6 @@ expect.extend(axeMatchers);
 import { DELAYS } from '../config/demo.js';
 DELAYS.scan = 0;
 DELAYS.typing = 0;
+DELAYS.approval = 0;
+DELAYS.caption = 0;
+DELAYS.flipCamera = 0;

@@ -1,7 +1,7 @@
 import { media } from '../config/media.js';
 
-// The NP Digital Twin's main video area. Plays the real video once `media.npVideoSrc`
-// is set (see src/config/media.js); until then shows a gray placeholder.
+// MinuteTwin's main video area. Plays the real video once `media.npVideoSrc` is set
+// (see src/config/media.js); until then shows a gray placeholder.
 export default function NpMedia() {
   if (media.npVideoSrc) {
     return (
@@ -10,7 +10,7 @@ export default function NpMedia() {
         autoPlay
         playsInline
         className="h-full w-full object-cover"
-        aria-label="AI nurse practitioner video"
+        aria-label="MinuteTwin video"
       >
         <track
           kind="captions"
@@ -22,10 +22,10 @@ export default function NpMedia() {
     );
   }
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-neutral-500">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-neutral-600">
       <span
         aria-hidden="true"
-        className="flex h-28 w-28 items-center justify-center rounded-full bg-neutral-300 text-3xl font-bold text-neutral-700"
+        className="flex h-32 w-32 items-center justify-center rounded-full bg-neutral-400 text-4xl font-bold text-neutral-800"
       >
         AI
       </span>

@@ -10,7 +10,7 @@ export default function BackButton({ to }) {
     <button
       type="button"
       onClick={() => (to ? navigate(to) : navigate(-1))}
-      className="flex min-h-12 min-w-12 items-center gap-1 rounded-lg px-2 text-lg font-semibold text-cvs-red hover:bg-cvs-red-light"
+      className="flex min-h-12 min-w-12 items-center gap-1 rounded-lg px-2 text-lg font-semibold text-cvs-blue hover:bg-cvs-blue-light"
     >
       <svg
         aria-hidden="true"

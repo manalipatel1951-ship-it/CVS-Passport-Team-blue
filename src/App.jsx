@@ -7,14 +7,17 @@ import ScanId from './screens/ScanId.jsx';
 import ManualEntry from './screens/ManualEntry.jsx';
 import RequireLovedOne from './screens/RequireLovedOne.jsx';
 import Dashboard from './screens/Dashboard.jsx';
+import RecordDetail from './screens/RecordDetail.jsx';
 import Chat from './screens/Chat.jsx';
 import Video from './screens/Video.jsx';
 import Summary from './screens/Summary.jsx';
-import ComingSoon from './screens/ComingSoon.jsx';
+
+// Screens that need the loved one to have approved access (Flow 2).
+const care = (screen) => <RequireLovedOne>{screen}</RequireLovedOne>;
 
 // Every screen gets one route here.
 // Flow 1 (Caregiver Passport): / → /fam → /fam/add → /fam/add/verify (or /fam/add/manual) → /fam
-// Flow 2 (NP Digital Twin):   /care/:id → /care/:id/chat → /care/:id/video → /care/:id/summary
+// Flow 2 (MinuteTwin):         /care/:id → /care/:id/chat ⇄ /care/:id/video → /care/:id/summary
 export default function App() {
   return (
     <AppStateProvider>
@@ -25,39 +28,11 @@ export default function App() {
           <Route path="/fam/add" element={<AddMember />} />
           <Route path="/fam/add/verify" element={<ScanId />} />
           <Route path="/fam/add/manual" element={<ManualEntry />} />
-          <Route
-            path="/care/:id"
-            element={
-              <RequireLovedOne>
-                <Dashboard />
-              </RequireLovedOne>
-            }
-          />
-          <Route
-            path="/care/:id/chat"
-            element={
-              <RequireLovedOne>
-                <Chat />
-              </RequireLovedOne>
-            }
-          />
-          <Route
-            path="/care/:id/video"
-            element={
-              <RequireLovedOne>
-                <Video />
-              </RequireLovedOne>
-            }
-          />
-          <Route
-            path="/care/:id/summary"
-            element={
-              <RequireLovedOne>
-                <Summary />
-              </RequireLovedOne>
-            }
-          />
-          <Route path="/soon" element={<ComingSoon />} />
+          <Route path="/care/:id" element={care(<Dashboard />)} />
+          <Route path="/care/:id/records/:recordId" element={care(<RecordDetail />)} />
+          <Route path="/care/:id/chat" element={care(<Chat />)} />
+          <Route path="/care/:id/video" element={care(<Video />)} />
+          <Route path="/care/:id/summary" element={care(<Summary />)} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </HashRouter>

@@ -1,31 +1,43 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PhoneShell from '../components/PhoneShell.jsx';
 import ContextBanner from '../components/ContextBanner.jsx';
 import BigButton from '../components/BigButton.jsx';
-import AIBadge, { AI_NAME, AI_SUBTITLE } from '../components/AIBadge.jsx';
+import AIBadge, { TWIN_NAME, TWIN_SUBTITLE } from '../components/AIBadge.jsx';
 import EscalationAlert from '../components/EscalationAlert.jsx';
-import { matchReply } from '../ai/matchReply.js';
-import { DELAYS } from '../config/demo.js';
+import CareLevels from '../components/CareLevels.jsx';
+import RashPhoto from '../components/RashPhoto.jsx';
+import Icon from '../components/icons.jsx';
+import { getSummary } from '../ai/twin.js';
 import { useAppState } from '../state/AppState.jsx';
 
-// Pretend photo the caregiver "sends" (dummy art, not a real photo).
-function SamplePhoto() {
+// Short version of the summary, shown at the end of the chat.
+function SummaryCard({ summary, to }) {
   return (
-    <span
-      role="img"
-      aria-label="Sample photo"
-      className="block h-36 w-48 rounded-lg bg-gradient-to-br from-rose-200 via-orange-100 to-rose-300"
-    />
+    <div className="w-full rounded-2xl border border-line bg-white p-4 shadow-sm">
+      <p className="text-sm font-semibold uppercase tracking-wide text-ink-soft">Visit summary</p>
+      <p className="mt-1 text-xl font-bold text-ink">{summary.condition}</p>
+      <ul className="mt-2 flex list-disc flex-col gap-1 pl-5 text-base text-ink">
+        {summary.whatToDo.map((w) => (
+          <li key={w}>{w}</li>
+        ))}
+      </ul>
+      <div className="mt-4">
+        <BigButton to={to}>View full summary</BigButton>
+      </div>
+    </div>
   );
 }
 
-// Steps 7 and 8: "How can we help?" (empty state), then the conversation.
+// The MinuteTwin visit: "How can we help?", then a scripted conversation (see src/ai/twinScripts.js).
+// The caregiver's next message is pre-typed, so the presenter just taps Send.
 export default function Chat() {
-  const { lovedOne, messages, setMessages, chatState, setChatState } = useAppState();
-  const [text, setText] = useState('');
-  const [typing, setTyping] = useState(false);
+  const { lovedOne, twin, messages, typing, chatInput, setChatInput, sendToTwin } = useAppState();
+  const navigate = useNavigate();
   const endRef = useRef(null);
   const base = `/care/${lovedOne.id}`;
+  const summary = getSummary(twin);
+  const waitingForPhoto = twin.waiting === 'photo' && !typing;
 
   // Keep the newest message in view. (Braces matter: in Chrome scrollIntoView returns a
   // Promise, and returning it from useEffect crashes React.)
@@ -33,77 +45,79 @@ export default function Chat() {
     endRef.current?.scrollIntoView?.({ behavior: 'smooth' });
   }, [messages, typing]);
 
-  const send = (message) => {
-    const result = matchReply(message, chatState, lovedOne.firstName);
-    setChatState(result.state);
-    setMessages((m) => [...m, { from: 'me', ...message }]);
-    setTyping(true);
-    setTimeout(() => {
-      setMessages((m) => [...m, { from: 'ai', text: result.reply, alert: result.alert }]);
-      setTyping(false);
-    }, DELAYS.typing);
-  };
-
   const submit = (e) => {
     e.preventDefault();
-    if (!text.trim() || typing) return;
-    send({ text: text.trim() });
-    setText('');
+    if (!chatInput.trim() || typing) return;
+    sendToTwin({ type: 'text', text: chatInput.trim() });
+  };
+
+  const renderTwinPart = (m) => {
+    if (m.careLevels) return summary && <CareLevels levels={summary.careLevels} />;
+    if (m.summaryCard) return summary && <SummaryCard summary={summary} to={`${base}/summary`} />;
+    return (
+      <>
+        <p className="max-w-[85%] rounded-2xl rounded-tl-sm bg-white px-4 py-3 text-base text-ink shadow-sm">
+          {m.text}
+        </p>
+        {m.alert && (
+          <div className="w-full">
+            <EscalationAlert level={m.alert} />
+          </div>
+        )}
+        {m.action === 'video' && twin.waiting === 'video' && (
+          <BigButton onClick={() => navigate(`${base}/video`)} full={false}>
+            Start video call
+          </BigButton>
+        )}
+      </>
+    );
   };
 
   return (
     <PhoneShell
-      title="Talk to AI"
+      title="MinuteTwin"
       back={base}
-      banner={<ContextBanner name={lovedOne.firstName} what="health chat" />}
+      banner={<ContextBanner person={lovedOne} what="visit" />}
+      gray
       footer={
-        <form onSubmit={submit} className="flex items-center gap-2 border-t border-line p-3">
+        <form
+          onSubmit={submit}
+          className="flex items-center gap-2 border-t border-line bg-white p-3"
+        >
           <button
             type="button"
-            onClick={() => !typing && send({ isPhoto: true })}
-            aria-label="Add a photo"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-line text-ink"
+            onClick={() => !typing && sendToTwin({ type: 'photo' })}
+            aria-label="Send a photo"
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 ${waitingForPhoto ? 'animate-pulse border-cvs-blue bg-cvs-blue text-white' : 'border-line text-ink'}`}
           >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              className="h-6 w-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-              <circle cx="12" cy="13" r="4" />
-            </svg>
+            <Icon name="camera" />
           </button>
           <label htmlFor="chat-input" className="sr-only">
             Message
           </label>
           <input
             id="chat-input"
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="Type a message"
+            value={chatInput}
+            onChange={(e) => setChatInput(e.target.value)}
+            placeholder={waitingForPhoto ? 'Tap the camera to send a photo' : 'Type a message'}
             autoComplete="off"
             className="min-h-12 min-w-0 flex-1 rounded-full border-2 border-line px-4 text-lg"
           />
           <button
             type="submit"
             disabled={typing}
-            className="min-h-12 shrink-0 rounded-full bg-cvs-red px-5 text-lg font-bold text-white disabled:opacity-60"
+            className="min-h-12 shrink-0 rounded-full bg-cvs-blue px-5 text-lg font-bold text-white disabled:opacity-60"
           >
             Send
           </button>
         </form>
       }
     >
-      <div className="flex items-start gap-3 rounded-xl bg-canvas p-3">
+      <div className="flex items-start gap-3 rounded-2xl bg-white p-3 shadow-sm">
         <AIBadge />
         <div>
-          <p className="text-base font-bold text-ink">{AI_NAME}</p>
-          <p className="text-sm text-ink-soft">{AI_SUBTITLE}</p>
+          <p className="text-base font-bold text-ink">{TWIN_NAME}</p>
+          <p className="text-sm text-ink-soft">{TWIN_SUBTITLE}</p>
         </div>
       </div>
 
@@ -111,50 +125,43 @@ export default function Chat() {
         <div className="flex flex-1 flex-col items-center justify-center gap-2 text-center">
           <h2 className="text-3xl font-bold text-ink">How can we help?</h2>
           <p className="text-lg text-ink-soft">
-            Tell us what&apos;s going on with {lovedOne.firstName}, in your own words.
+            Tell MinuteTwin what&apos;s going on with {lovedOne.firstName}.
           </p>
         </div>
       ) : (
         <ol aria-live="polite" className="mt-4 flex flex-col gap-3">
-          {messages.map((m, i) => (
-            <li
-              key={i}
-              className={`flex flex-col gap-2 ${m.from === 'me' ? 'items-end' : 'items-start'}`}
-            >
-              {m.from === 'ai' && (
-                <span className="flex items-center gap-1 text-sm font-semibold text-ink-soft">
-                  <AIBadge /> {AI_NAME}
-                </span>
-              )}
-              {m.isPhoto ? (
-                <SamplePhoto />
-              ) : (
-                <p
-                  className={`max-w-[85%] rounded-2xl px-4 py-2 text-base ${m.from === 'me' ? 'bg-cvs-red text-white' : 'bg-canvas text-ink'}`}
-                >
-                  {m.text}
-                </p>
-              )}
-              {m.alert && (
-                <div className="w-full">
-                  <EscalationAlert level={m.alert} />
-                </div>
-              )}
-            </li>
-          ))}
-          {typing && <li className="text-base text-ink-soft">AI is typing…</li>}
+          {messages.map((m, i) => {
+            const showName = m.from === 'twin' && messages[i - 1]?.from !== 'twin';
+            const align =
+              m.from === 'me' ? 'items-end' : m.from === 'system' ? 'items-center' : 'items-start';
+            return (
+              <li key={i} className={`flex flex-col gap-2 ${align}`}>
+                {showName && (
+                  <span className="flex items-center gap-1 text-sm font-semibold text-ink-soft">
+                    <AIBadge /> {TWIN_NAME}
+                  </span>
+                )}
+                {m.from === 'twin' && renderTwinPart(m)}
+                {m.from === 'me' &&
+                  (m.photo ? (
+                    <RashPhoto />
+                  ) : (
+                    <p className="max-w-[85%] rounded-2xl rounded-tr-sm bg-cvs-blue px-4 py-3 text-base text-white">
+                      {m.text}
+                    </p>
+                  ))}
+                {m.from === 'system' && (
+                  <p className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-ink-soft">
+                    {m.text}
+                  </p>
+                )}
+              </li>
+            );
+          })}
+          {typing && <li className="text-base text-ink-soft">MinuteTwin is typing…</li>}
         </ol>
       )}
       <div ref={endRef} />
-
-      {messages.length > 0 && !typing && (
-        <div className="mt-6 grid grid-cols-2 gap-3">
-          <BigButton to={`${base}/video`}>Video call</BigButton>
-          <BigButton to={`${base}/summary`} variant="secondary">
-            See summary
-          </BigButton>
-        </div>
-      )}
     </PhoneShell>
   );
 }

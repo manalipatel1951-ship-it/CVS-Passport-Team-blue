@@ -1,11 +1,14 @@
-// UX rule: the NP Digital Twin is always clearly labeled as AI.
-export default function AIBadge() {
+// UX rule: MinuteTwin is always clearly labeled as AI, never as a nurse or a real person.
+export default function AIBadge({ inverted = false }) {
   return (
-    <span className="inline-flex items-center rounded-md bg-ink px-2 py-0.5 text-sm font-bold text-white">
+    <span
+      className={`inline-flex items-center rounded-md px-2 py-0.5 text-sm font-bold ${inverted ? 'bg-white text-cvs-blue' : 'bg-cvs-blue text-white'}`}
+    >
       AI
     </span>
   );
 }
 
-export const AI_NAME = 'AI Nurse Practitioner';
-export const AI_SUBTITLE = 'Digital twin of a CVS nurse practitioner. Not a real person.';
+export const TWIN_NAME = 'MinuteTwin (AI)';
+export const TWIN_SUBTITLE =
+  'Digital twin of a MinuteClinic nurse practitioner. Not a real person.';

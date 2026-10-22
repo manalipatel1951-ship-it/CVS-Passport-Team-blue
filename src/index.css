@@ -1,14 +1,21 @@
 @import 'tailwindcss';
 
-/* Brand colors and fonts. Change a value here and it updates everywhere. */
+/* Brand colors and fonts. Change a value here and it updates everywhere.
+   Style reference: reference/cvs-app-dashboard.png
+   - Dark blue: main action buttons (pill-shaped)
+   - Red: brand, icons, the active tab, and emergency alerts
+   - Light blue: hero sections. Light gray: page background behind white cards */
 @theme {
   --color-cvs-red: #cc0000;
   --color-cvs-red-dark: #a30000;
   --color-cvs-red-light: #fdecec;
+  --color-cvs-blue: #1f4e95;
+  --color-cvs-blue-dark: #173d76;
+  --color-cvs-blue-light: #dbe6f2;
   --color-ink: #1f1f1f;
   --color-ink-soft: #4a4a4a;
   --color-line: #e3e3e3;
-  --color-canvas: #f4f4f5;
+  --color-canvas: #f2f2f2;
   --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -27,6 +34,28 @@ body {
 
 /* Clear keyboard focus ring on everything that can be tapped. */
 :focus-visible {
-  outline: 3px solid var(--color-cvs-red);
+  outline: 3px solid var(--color-cvs-blue);
   outline-offset: 2px;
+}
+
+/* Banner that slides in from the top (e.g. "Sarah approved your access"). */
+@keyframes slide-in {
+  from {
+    transform: translateY(-12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.animate-slide-in {
+  animation: slide-in 0.35s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in,
+  .animate-pulse {
+    animation: none;
+  }
 }
