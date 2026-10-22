@@ -58,7 +58,7 @@ export default function Summary() {
   return (
     <PhoneShell
       title="Visit summary"
-      back={`${base}/chat`}
+      back={base}
       banner={<ContextBanner person={lovedOne} what="visit summary" />}
       gray
     >

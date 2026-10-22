@@ -3,12 +3,19 @@ import userEvent from '@testing-library/user-event';
 import { axe } from '../test/axe.js';
 import Welcome from './Welcome.jsx';
 import { renderWithRouter } from '../test/renderWithRouter.jsx';
+import { DEMO } from '../config/demo.js';
 
 describe('Welcome screen', () => {
-  it('shows the CVS Health logo and the Concept prototype label', () => {
+  it('shows the CVS Health logo, the Concept prototype label and the four benefits', () => {
     renderWithRouter(<Welcome />);
-    expect(screen.getByRole('img', { name: 'CVS Health' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'CVS Health' })).toBeVisible();
     expect(screen.getByText('Concept prototype')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Caregiver Passport' })).toBeInTheDocument();
+    expect(screen.getByText(/MinuteTwin, our AI care assistant/)).toBeInTheDocument();
+    expect(
+      screen.getByText('Your loved one stays in control of what you can see'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/AI NP|nurse/i)).not.toBeInTheDocument();
   });
 
   it('has no Back button because it is the first screen', () => {
@@ -20,6 +27,16 @@ describe('Welcome screen', () => {
     renderWithRouter(<Welcome />, { routes: { '/fam': <p>My Fam screen</p> } });
     await userEvent.click(screen.getByRole('link', { name: 'Get started' }));
     expect(screen.getByText('My Fam screen')).toBeInTheDocument();
+  });
+
+  it('plays the splash first, and a tap skips it', async () => {
+    DEMO.showSplash = true;
+    renderWithRouter(<Welcome />);
+    const splash = screen.getByTestId('splash');
+    expect(screen.getByAltText('CVS Health')).not.toBeVisible();
+    await userEvent.click(splash);
+    expect(screen.queryByTestId('splash')).not.toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'CVS Health' })).toBeVisible();
   });
 
   it('has no accessibility problems', async () => {

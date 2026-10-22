@@ -1,13 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PhoneShell from '../components/PhoneShell.jsx';
 import NpMedia from '../components/NpMedia.jsx';
 import AIBadge, { TWIN_NAME } from '../components/AIBadge.jsx';
 import RashPhoto from '../components/RashPhoto.jsx';
 import Icon from '../components/icons.jsx';
-import { getVideoLine } from '../ai/twin.js';
-import { DELAYS } from '../config/demo.js';
+import { getVideoLines } from '../ai/twin.js';
 import { useAppState } from '../state/AppState.jsx';
+
+// ─── Video call timings (milliseconds from the start of the call). Adjust freely. ───
+export const CALL = {
+  firstCaption: 1500, // "Thanks for the photo. Can you hold the camera closer…"
+  flipCamera: 3500, // your small view switches to Sarah's arm
+  secondCaption: 5500, // "Thanks, I've got what I need…" (with a small nod)
+  autoEnd: 7500, // the call ends by itself and the summary is prepared
+};
+// ─────────────────────────────────────────────────────────────────────────────
 
 const mmss = (s) =>
   `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -26,40 +34,51 @@ function RoundButton({ label, onClick, pressed, danger = false, children }) {
   );
 }
 
-// Video visit with MinuteTwin. Full-screen placeholder video with everything floating on top.
-// No Back button during the call: End call is the way out, and it returns to the chat.
+// Video visit with MinuteTwin. Full-screen video with everything floating on top.
+// No Back button during the call: End call (or the automatic end) leads to the summary.
 export default function Video() {
   const { lovedOne, twin, sendToTwin } = useAppState();
   const navigate = useNavigate();
   const [seconds, setSeconds] = useState(0);
   const [muted, setMuted] = useState(false);
-  const [showCaption, setShowCaption] = useState(false);
+  const [caption, setCaption] = useState(0); // 0 none, 1 first, 2 second
   // false = the caregiver's own camera; true = flipped to show Sarah's arm
   const [flipped, setFlipped] = useState(false);
+  const ended = useRef(false);
+  const lines = getVideoLines(twin, lovedOne.firstName);
+  // Always call the latest sendToTwin, without restarting the call's timers.
+  const sendRef = useRef(sendToTwin);
+  useEffect(() => {
+    sendRef.current = sendToTwin;
+  }, [sendToTwin]);
+
+  const endCall = useCallback(() => {
+    if (ended.current) return;
+    ended.current = true;
+    sendRef.current({ type: 'videoEnded' });
+    navigate(`/care/${lovedOne.id}/preparing`, { replace: true });
+  }, [navigate, lovedOne.id]);
 
   useEffect(() => {
     const tick = setInterval(() => setSeconds((s) => s + 1), 1000);
-    const caption = setTimeout(() => setShowCaption(true), DELAYS.caption);
-    // As if the caregiver flipped the camera to show the rash after MinuteTwin asks.
-    const flip = setTimeout(() => setFlipped(true), DELAYS.caption + DELAYS.flipCamera);
+    const timers = [
+      setTimeout(() => setCaption(1), CALL.firstCaption),
+      setTimeout(() => setFlipped(true), CALL.flipCamera),
+      setTimeout(() => setCaption(2), CALL.secondCaption),
+      setTimeout(endCall, CALL.autoEnd),
+    ];
     return () => {
       clearInterval(tick);
-      clearTimeout(caption);
-      clearTimeout(flip);
+      timers.forEach(clearTimeout);
     };
-  }, []);
-
-  const endCall = () => {
-    sendToTwin({ type: 'videoEnded' });
-    navigate(`/care/${lovedOne.id}/chat`);
-  };
+  }, [endCall]);
 
   return (
     <PhoneShell hideHeader bare>
       <h1 className="sr-only">MinuteTwin video visit</h1>
       <div className="relative flex-1 overflow-hidden bg-neutral-900">
         <div className="absolute inset-0">
-          <NpMedia />
+          <NpMedia speaking={caption > 0} nodKey={caption === 2 ? 2 : 0} />
         </div>
 
         {/* Top: status, AI label, whose visit */}
@@ -94,11 +113,14 @@ export default function Video() {
         </div>
 
         {/* Bottom: live caption and call buttons */}
-        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-5 bg-gradient-to-t from-black/70 to-transparent px-4 pb-8 pt-12">
-          <p aria-live="polite" className="min-h-16 w-full text-center">
-            {showCaption && (
-              <span className="inline-block rounded-xl bg-black/70 px-4 py-2 text-lg text-white">
-                {getVideoLine(twin, lovedOne.firstName)}
+        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center gap-5 bg-gradient-to-t from-black/75 to-transparent px-4 pb-8 pt-16">
+          <p aria-live="polite" className="min-h-20 w-full text-center">
+            {caption > 0 && (
+              <span
+                key={caption}
+                className="animate-slide-in inline-block rounded-xl bg-black/75 px-4 py-2 text-lg text-white"
+              >
+                {lines[caption - 1]}
               </span>
             )}
           </p>

@@ -17,6 +17,7 @@ import { useAppState } from '../state/AppState.jsx';
  * - hideHeader: hide the top bar entirely (e.g. welcome screen, video call)
  * - gray:       light gray page background (for screens made of white cards)
  * - bare:       no padding around the content (e.g. full-screen video)
+ * - overlay:    something covering the whole phone (e.g. the splash animation, a pop-up sheet)
  */
 export default function PhoneShell({
   title,
@@ -28,6 +29,7 @@ export default function PhoneShell({
   hideHeader = false,
   gray = false,
   bare = false,
+  overlay,
   children,
 }) {
   const { notice } = useAppState();
@@ -43,7 +45,9 @@ export default function PhoneShell({
                 {leading ??
                   (back !== false && <BackButton to={back === true ? undefined : back} />)}
                 {title && (
-                  <h1 className="min-w-0 flex-1 pr-1 text-xl leading-tight font-bold text-ink">
+                  <h1
+                    className={`min-w-0 flex-1 pr-1 text-xl leading-tight font-bold text-ink ${!leading && back === false ? 'pl-2' : ''}`}
+                  >
                     {title}
                   </h1>
                 )}
@@ -69,6 +73,7 @@ export default function PhoneShell({
             </p>
           )}
         </div>
+        {overlay}
       </div>
     </div>
   );

@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import PhoneShell from '../components/PhoneShell.jsx';
 import BigButton from '../components/BigButton.jsx';
 import TextField from '../components/TextField.jsx';
-import StepIndicator from '../components/StepIndicator.jsx';
+import PassportHero, { HeaderHeart, IdCardArt } from '../components/PassportHero.jsx';
 import { useAppState } from '../state/AppState.jsx';
 
-// Step 2 alternative: the caregiver types their OWN ID details instead of scanning
+// "Verify another way" → the caregiver types their OWN ID details instead of scanning
 // (UX rule: always offer a manual option to scanning and face matching).
 export default function ManualEntry() {
   const { caregiver } = useAppState();
@@ -22,16 +22,19 @@ export default function ManualEntry() {
     if (!id.fullName.trim()) found.fullName = 'Please enter your full name';
     if (!id.number.trim()) found.number = 'Please enter your ID number';
     setErrors(found);
-    if (Object.keys(found).length === 0) navigate('/fam/add/verify', { state: { manual: true } });
+    if (Object.keys(found).length === 0) {
+      navigate('/fam/add/verified', { state: { manual: true } });
+    }
   };
 
   return (
-    <PhoneShell title="Enter your ID details" back="/fam/add/verify">
-      <StepIndicator step={2} />
+    <PhoneShell title="Enter your ID details" back="/fam/add/verify" actions={<HeaderHeart />}>
+      <PassportHero
+        step={2}
+        intro="Type the details from your own driver's license or ID."
+        art={<IdCardArt />}
+      />
       <form onSubmit={submit} noValidate className="flex flex-1 flex-col gap-5">
-        <p className="text-lg text-ink-soft">
-          Type the details from your own driver&apos;s license or ID.
-        </p>
         <TextField
           id="idName"
           label="Full name (as on your ID)"
@@ -51,8 +54,8 @@ export default function ManualEntry() {
         <TextField id="idState" label="State" value={id.state} onChange={update('state')} />
         <TextField
           id="idExpires"
-          label="Expiration date"
-          type="date"
+          label="Expiration date (MM/DD/YYYY)"
+          inputMode="numeric"
           value={id.expires}
           onChange={update('expires')}
         />

@@ -1,8 +1,9 @@
+import NpIllustration from './NpIllustration.jsx';
 import { media } from '../config/media.js';
 
 // MinuteTwin's main video area. Plays the real video once `media.npVideoSrc` is set
-// (see src/config/media.js); until then shows a gray placeholder.
-export default function NpMedia() {
+// (see src/config/media.js); until then shows the animated illustration.
+export default function NpMedia({ speaking, nodKey }) {
   if (media.npVideoSrc) {
     return (
       <video
@@ -21,15 +22,5 @@ export default function NpMedia() {
       </video>
     );
   }
-  return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-neutral-600">
-      <span
-        aria-hidden="true"
-        className="flex h-32 w-32 items-center justify-center rounded-full bg-neutral-400 text-4xl font-bold text-neutral-800"
-      >
-        AI
-      </span>
-      <span className="text-base text-white">Video placeholder</span>
-    </div>
-  );
+  return <NpIllustration speaking={speaking} nodKey={nodKey} />;
 }

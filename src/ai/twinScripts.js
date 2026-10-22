@@ -1,14 +1,19 @@
 // MinuteTwin's scripted conversations. No real AI is used.
 // `{name}` is replaced with the loved one's first name.
 //
-// How a path works: the caregiver's first message picks a path by keyword.
+// Every path has the same short shape:
+//   caregiver's first message → MinuteTwin asks everything in one message →
+//   caregiver's pre-filled answer → MinuteTwin wraps up.
+// The rash path (the main demo) adds a photo and a video call; the others end with a
+// "View summary" card in the chat. "When to get more care" lives only on the summary screen.
+//
 // Each turn is MinuteTwin's reply, plus what happens next:
 //   next.prefill: the caregiver's next message, pre-typed so the presenter just taps Send
-//   next.waiting: 'text' (a message), 'photo' (tap the camera), 'video' (start video call), or 'done'
-// Reply parts: { text } a message · { text, action: 'video' } adds a "Start video call" button
-//              { careLevels: true } the "When to get more care" box · { summaryCard: true } the summary card
+//   next.waiting: 'text' (a message), 'photo' (photo + caption), 'video' (start video call), or 'done'
+// Reply parts: { text } a message · { text, action: 'video' } adds "Start video call" · { summaryCard: true }
 
-export const FIRST_PREFILL = 'Hi, my mother {name} has a rash on her left upper arm.';
+export const GREETING =
+  "Hi, I'm MinuteTwin, a digital twin of a MinuteClinic nurse practitioner. I'm AI, not a real person. I can see {name}'s medications and visit history. What's going on with {name} today?";
 
 export const FALLBACK_REPLY =
   'I can help with that. Can you tell me what {name} is experiencing and when it started?';
@@ -16,7 +21,7 @@ export const FALLBACK_REPLY =
 export const EMERGENCY_REPLY =
   "What you're describing could be serious. Please call 911 or go to the nearest emergency room now. Don't wait.";
 
-// Only words the caregiver actually types trigger this.
+// Only words the caregiver actually types trigger the 911 alert.
 export const EMERGENCY_KEYWORDS = [
   'chest pain',
   'trouble breathing',
@@ -42,80 +47,180 @@ export const EMERGENCY_KEYWORDS = [
   'severe bleeding',
 ];
 
-const CLOSING =
-  "You're welcome! I hope {name} feels better soon. I've sent a summary to {name}'s account, and a MinuteClinic nurse practitioner will review it too.";
-
-const THANKS = 'Thank you for the information.';
-
 export const PHOTO_REPLIES = {
   noPath: 'Thanks for the photo. Can you tell me what {name} is experiencing and when it started?',
   extra: "Thanks, I've added that photo to {name}'s visit.",
 };
 
 export const NUDGES = {
-  photo: 'When you can, tap the camera button to send a photo of it.',
+  photo: 'When you can, tap the camera button to add a photo, then tap Send.',
   video: 'Tap "Start video call" when you\'re ready.',
-  done: "I've already sent {name}'s summary. If anything changes, start a new MinuteTwin visit anytime.",
+  done: "I've already put together {name}'s visit summary. If anything changes, start a new MinuteTwin visit anytime.",
 };
 
+const SUMMARY_SENT =
+  "I've put together a visit summary with what to do and when to get more care. It's been sent to {name}'s account, and a MinuteClinic nurse practitioner will review it too.";
+
+// Quick-start buttons on the empty chat. `pathId: null` = "Something else" (type freely).
+export const QUICK_STARTS = [
+  { label: 'Rash or skin issue', pathId: 'rash' },
+  { label: 'Cold or flu', pathId: 'cold' },
+  { label: 'Allergies', pathId: 'allergy' },
+  { label: 'Something else', pathId: null },
+];
+
+// Order matters: the first path whose keywords match wins
+// (allergies before rash, so "itchy eyes" isn't treated as a skin rash).
 export const paths = [
   {
-    id: 'rash',
-    keywords: ['rash', 'itch', 'itchy', 'hives', 'bumps', 'red spots', 'skin'],
-    videoLine: "Hi there, can you show me the rash on {name}'s left upper arm?",
+    id: 'allergy',
+    firstMessage:
+      "Hi, my mother {name}'s allergies are acting up. She's sneezing and her eyes are itchy.",
+    keywords: [
+      'allergy',
+      'allergies',
+      'allergic',
+      'hay fever',
+      'pollen',
+      'itchy eyes',
+      'watery eyes',
+      'seasonal',
+    ],
     turns: [
       {
         reply: [
           {
-            text: "I'm sorry {name} is dealing with that. A rash on her left upper arm, got it. When did it start, and is it itchy, painful, or both?",
+            text: "I'm sorry {name} is dealing with that. A few quick questions: When did it start, and does it happen around the same time each year? Is she wheezing at all? And is she taking any allergy medicine?",
           },
         ],
-        next: { waiting: 'text', prefill: "It started yesterday. She says it's really itchy." },
+        next: {
+          waiting: 'text',
+          prefill:
+            "It started a few days ago, and it happens every spring and fall. No wheezing. She isn't taking anything for it yet.",
+        },
       },
       {
         reply: [
           {
-            text: 'Thanks. Has she started any new soaps, lotions, or laundry detergent recently? And does she have a fever?',
+            text: `Thanks, that helps. I checked {name}'s medication list, and a common non-drowsy allergy medicine shouldn't interact with her current prescriptions. This sounds like seasonal allergies. ${SUMMARY_SENT}`,
+          },
+          { summaryCard: true },
+        ],
+        next: { waiting: 'done' },
+      },
+    ],
+    summary: {
+      short: 'allergies',
+      condition: 'Likely seasonal allergies',
+      visitType: 'MinuteTwin chat visit',
+      notes: [
+        'Sneezing and itchy eyes',
+        'Started a few days ago',
+        'Happens every spring and fall',
+        'No wheezing',
+        'Not taking allergy medicine yet',
+        'Checked her medication list: no conflicts expected',
+      ],
+      whatToDo: [
+        'Try a non-drowsy allergy medicine like loratadine (Claritin), as directed on the label',
+        'Use a saline nose spray or rinse',
+        'Keep windows closed on high-pollen days, and wash up after being outside',
+      ],
+      careLevels: {
+        minuteClinic: "If it isn't better after a week of allergy medicine",
+        urgentCare: 'If she starts wheezing or has trouble sleeping because of her breathing',
+        call911: 'Swelling of face, lips, or tongue, or trouble breathing',
+      },
+      actions: ['Find allergy relief at CVS', 'Book a MinuteClinic visit', 'Share summary'],
+    },
+  },
+  {
+    id: 'cut',
+    keywords: ['cut', 'scrape', 'scraped', 'scratch', 'wound', 'infected', 'infection', 'pus'],
+    turns: [
+      {
+        reply: [
+          {
+            text: "I'm sorry {name} is dealing with that. A few quick questions: Where is it, and when did it happen? Is the area red, swollen, or warm? Is there any pus, or red streaks spreading from it? And does she have a fever?",
           },
         ],
-        next: { waiting: 'text', prefill: 'No fever. She did switch detergents last week.' },
+        next: {
+          waiting: 'text',
+          prefill:
+            "It's a scrape on her right knee from three days ago. It's red, a little swollen, and warm. No pus or red streaks, and no fever.",
+        },
       },
       {
         reply: [
           {
-            text: "That's helpful. I also checked {name}'s medication list and there are no recent changes, so a medication reaction is less likely. Could you send a photo of the rash?",
+            text: `Thanks, that helps. I checked {name}'s medication list and there are no recent changes. This looks like a mildly infected scrape. Because of the redness and warmth, I recommend a MinuteClinic visit in the next day or two in case she needs an antibiotic. ${SUMMARY_SENT}`,
+          },
+          { summaryCard: true },
+        ],
+        next: { waiting: 'done' },
+      },
+    ],
+    summary: {
+      short: 'infected scrape',
+      condition: 'Possible mild skin infection (infected scrape)',
+      visitType: 'MinuteTwin chat visit',
+      notes: [
+        'Scrape on right knee',
+        'Happened three days ago',
+        'Red, a little swollen, and warm',
+        'No pus or red streaks',
+        'No fever',
+        'No recent medication changes',
+      ],
+      whatToDo: [
+        'Book a MinuteClinic visit in the next day or two',
+        'Gently wash it with soap and water twice a day',
+        'Cover it with a clean bandage and change it daily',
+        'Draw a pen line around the redness to see if it spreads',
+      ],
+      careLevels: {
+        minuteClinic: 'In the next day or two, to check if she needs an antibiotic',
+        urgentCare: 'If the redness spreads past the pen line, there is pus, or she gets a fever',
+        call911: 'Red streaks spreading fast with a high fever, confusion, or trouble breathing',
+      },
+      actions: ['Book a MinuteClinic visit', 'Find bandages at CVS', 'Share summary'],
+    },
+  },
+  {
+    id: 'rash',
+    firstMessage: 'Hi, my mother {name} has a rash on her left upper arm.',
+    keywords: ['rash', 'itch', 'itchy', 'hives', 'bumps', 'red spots', 'skin'],
+    // What MinuteTwin says on the video call (first caption, then second caption).
+    videoLines: [
+      "Thanks for the photo. Can you hold the camera closer to the rash on {name}'s left upper arm? I want to check if it's raised or spreading.",
+      "Thanks, I've got what I need. I'll put together {name}'s visit summary now.",
+    ],
+    turns: [
+      {
+        reply: [
+          {
+            text: "I'm sorry {name} is dealing with that. Could you send a photo of the rash? And let me know when it started, if it's itchy or painful, if she has a fever, and if she's used any new soaps, lotions, or laundry detergent.",
           },
         ],
-        next: { waiting: 'photo' },
+        next: {
+          waiting: 'photo',
+          prefill:
+            "Started yesterday and it's really itchy. No fever. She switched detergents last week.",
+        },
       },
       {
         reply: [
           {
-            text: "Thank you. I'd like to take a closer look to be sure. Can we do a quick video call?",
+            text: "Thanks, that helps. I checked {name}'s medication list and there are no recent changes, so a medication reaction is less likely. I'd like to take a closer look to be sure. Can we do a quick video call?",
             action: 'video',
           },
         ],
         next: { waiting: 'video' },
       },
-      {
-        reply: [
-          {
-            text: "Thanks for showing me. This looks like contact dermatitis, a skin reaction that's often caused by something like a new detergent. Here's what can help: switch back to her old detergent, use a cool compress, and try an over-the-counter hydrocortisone cream as directed on the label.",
-          },
-          { careLevels: true },
-        ],
-        next: { waiting: 'text', prefill: THANKS },
-      },
-      {
-        reply: [{ text: CLOSING }, { summaryCard: true }],
-        next: { waiting: 'done' },
-      },
     ],
     summary: {
       short: 'rash',
       condition: 'Likely contact dermatitis',
-      // Buttons on the summary screen (they show "Not part of this demo").
-      actions: ['Find hydrocortisone cream at CVS', 'Book a MinuteClinic visit', 'Share summary'],
       visitType: 'MinuteTwin chat and video visit',
       notes: [
         'Rash on left upper arm',
@@ -136,84 +241,17 @@ export const paths = [
         urgentCare: 'If it spreads quickly, blisters, or she gets a fever',
         call911: 'Swelling of face, lips, or tongue, or trouble breathing',
       },
-    },
-  },
-  {
-    id: 'infection',
-    keywords: [
-      'infection',
-      'infected',
-      'uti',
-      'burning',
-      'pee',
-      'peeing',
-      'pees',
-      'urine',
-      'urinate',
-      'urinating',
-      'bladder',
-    ],
-    turns: [
-      {
-        reply: [
-          {
-            text: "I'm sorry {name} is dealing with that. When did it start? Does she have a fever, back or side pain, or blood in her urine?",
-          },
-        ],
-        next: { waiting: 'text', prefill: 'It started two days ago. No fever or back pain.' },
-      },
-      {
-        reply: [
-          {
-            text: "Thanks. I checked {name}'s medication list and there are no recent changes. Is she going to the bathroom more often than usual, and is she drinking enough fluids?",
-          },
-        ],
-        next: {
-          waiting: 'text',
-          prefill: "Yes, she's going a lot more often. She's drinking water.",
-        },
-      },
-      {
-        reply: [
-          {
-            text: 'Thank you. This sounds like it could be a urinary tract infection (UTI). A UTI usually needs a quick urine test and often an antibiotic, so I recommend a MinuteClinic visit today or tomorrow. Until then, keep her drinking water.',
-          },
-          { careLevels: true },
-        ],
-        next: { waiting: 'text', prefill: THANKS },
-      },
-      { reply: [{ text: CLOSING }, { summaryCard: true }], next: { waiting: 'done' } },
-    ],
-    summary: {
-      short: 'possible UTI',
-      condition: 'Possible urinary tract infection (UTI)',
-      // Buttons on the summary screen (they show "Not part of this demo").
-      actions: ['Book a MinuteClinic visit', 'Share summary'],
-      visitType: 'MinuteTwin chat visit',
-      notes: [
-        'Burning when she pees, going more often',
-        'Started two days ago',
-        'No fever or back pain',
-        'No recent medication changes',
-      ],
-      whatToDo: [
-        'Book a MinuteClinic visit today or tomorrow for a quick urine test',
-        'Keep her drinking water',
-        'Acetaminophen (Tylenol) for discomfort, as directed on the label',
-      ],
-      careLevels: {
-        minuteClinic: 'Today or tomorrow, for a quick urine test',
-        urgentCare: 'If she gets a fever, back or side pain, or starts vomiting',
-        call911: 'If she becomes suddenly confused, very weak, or hard to wake',
-      },
+      actions: ['Find hydrocortisone cream at CVS', 'Book a MinuteClinic visit', 'Share summary'],
     },
   },
   {
     id: 'cold',
+    firstMessage: 'Hi, my mother {name} has a cough and a runny nose.',
     keywords: [
       'cough',
       'coughing',
       'cold',
+      'flu',
       'congestion',
       'congested',
       'stuffy',
@@ -226,37 +264,35 @@ export const paths = [
       {
         reply: [
           {
-            text: "Sorry {name} isn't feeling well. How long has she had these symptoms, and is she coughing anything up?",
+            text: "I'm sorry {name} isn't feeling well. A few quick questions: How long has she had these symptoms? Is she coughing anything up? And does she have a fever, or any wheezing when she breathes?",
           },
         ],
-        next: { waiting: 'text', prefill: 'About three days. A little clear mucus.' },
-      },
-      {
-        reply: [{ text: 'Thanks. Does she have a fever, or any wheezing when she breathes?' }],
-        next: { waiting: 'text', prefill: 'No fever and no wheezing. She just feels tired.' },
+        next: {
+          waiting: 'text',
+          prefill:
+            'About three days. A little clear mucus. No fever and no wheezing. She just feels tired.',
+        },
       },
       {
         reply: [
           {
-            text: "Thanks. This sounds like a common cold. It's caused by a virus, so antibiotics won't help. Rest, plenty of fluids, honey in warm tea for the cough, and a saline nose spray for stuffiness. Most colds get better in 7 to 10 days.",
+            text: `Thanks, that helps. I checked {name}'s medication list and there are no recent changes. This sounds like a common cold. It's caused by a virus, so antibiotics won't help, and most colds get better in 7 to 10 days. ${SUMMARY_SENT}`,
           },
-          { careLevels: true },
+          { summaryCard: true },
         ],
-        next: { waiting: 'text', prefill: THANKS },
+        next: { waiting: 'done' },
       },
-      { reply: [{ text: CLOSING }, { summaryCard: true }], next: { waiting: 'done' } },
     ],
     summary: {
       short: 'cold',
       condition: 'Likely common cold',
-      // Buttons on the summary screen (they show "Not part of this demo").
-      actions: ['Find cold and cough relief at CVS', 'Book a MinuteClinic visit', 'Share summary'],
       visitType: 'MinuteTwin chat visit',
       notes: [
-        'Cough and cold symptoms for about three days',
+        'Cough and runny nose for about three days',
         'A little clear mucus',
         'No fever or wheezing',
         'Feels tired',
+        'No recent medication changes',
       ],
       whatToDo: [
         'Rest and plenty of fluids',
@@ -268,6 +304,7 @@ export const paths = [
         urgentCare: 'If she gets a fever above 101°F or starts wheezing',
         call911: 'Trouble breathing or chest pain',
       },
+      actions: ['Find cold and cough relief at CVS', 'Book a MinuteClinic visit', 'Share summary'],
     },
   },
   {
@@ -277,37 +314,36 @@ export const paths = [
       {
         reply: [
           {
-            text: "Let's figure this out. What is {name}'s temperature, and when did the fever start?",
+            text: "Let's figure this out. A few quick questions: What is {name}'s temperature, and when did the fever start? Does she have any other symptoms, like a cough, burning when she pees, a rash, or a stiff neck?",
           },
         ],
-        next: { waiting: 'text', prefill: "It's 100.4°F. It started this morning." },
+        next: {
+          waiting: 'text',
+          prefill:
+            "It's 100.4°F and it started this morning. No other symptoms. She just feels achy and tired.",
+        },
       },
       {
         reply: [
           {
-            text: 'Thanks. Does she have any other symptoms, like a cough, burning when she pees, a rash, or a stiff neck?',
+            text: `Thanks, that helps. I checked {name}'s medication list and there are no recent changes. A low fever like this is often from a mild virus. ${SUMMARY_SENT}`,
           },
+          { summaryCard: true },
         ],
-        next: { waiting: 'text', prefill: 'No, she just feels achy and tired.' },
+        next: { waiting: 'done' },
       },
-      {
-        reply: [
-          {
-            text: 'A low fever like this is often from a mild virus. Give acetaminophen (Tylenol) as directed on the label, keep her drinking fluids, and check her temperature every 4 to 6 hours.',
-          },
-          { careLevels: true },
-        ],
-        next: { waiting: 'text', prefill: THANKS },
-      },
-      { reply: [{ text: CLOSING }, { summaryCard: true }], next: { waiting: 'done' } },
     ],
     summary: {
       short: 'fever',
       condition: 'Likely mild viral fever',
-      // Buttons on the summary screen (they show "Not part of this demo").
-      actions: ['Find acetaminophen at CVS', 'Book a MinuteClinic visit', 'Share summary'],
       visitType: 'MinuteTwin chat visit',
-      notes: ['Temperature 100.4°F', 'Started this morning', 'Achy and tired', 'No other symptoms'],
+      notes: [
+        'Temperature 100.4°F',
+        'Started this morning',
+        'Achy and tired',
+        'No other symptoms',
+        'No recent medication changes',
+      ],
       whatToDo: [
         'Acetaminophen (Tylenol) as directed on the label',
         'Plenty of fluids and rest',
@@ -318,6 +354,7 @@ export const paths = [
         urgentCare: 'If it reaches 103°F, or she gets a new cough, rash, or burning when she pees',
         call911: 'Confusion, a stiff neck, trouble breathing, or very hard to wake',
       },
+      actions: ['Find acetaminophen at CVS', 'Book a MinuteClinic visit', 'Share summary'],
     },
   },
 ];

@@ -53,9 +53,173 @@ body {
   animation: slide-in 0.35s ease-out;
 }
 
+/* Panel sliding up from the bottom ("Who needs care?", "Verify another way"). */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-sheet-up {
+  animation: sheet-up 0.3s ease-out;
+}
+
+/* "MinuteTwin is typing…" dots */
+@keyframes typing-dot {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-3px);
+  }
+}
+.typing-dot {
+  animation: typing-dot 1.2s infinite ease-in-out;
+}
+
+/* Selfie "liveness" check: the oval outline fills in. */
+@keyframes oval-fill {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* MinuteTwin video: subtle "live" movement (breathing, sway, blink, speaking glow, nod). */
+@keyframes np-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-2px) scale(1.008);
+  }
+}
+@keyframes np-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+@keyframes np-blink {
+  0%,
+  94%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes np-glow {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+@keyframes np-nod {
+  0%,
+  100% {
+    transform: rotate(0deg) translateY(0);
+  }
+  35% {
+    transform: rotate(3deg) translateY(4px);
+  }
+  70% {
+    transform: rotate(-1deg) translateY(-1px);
+  }
+}
+.np-breathe {
+  animation: np-breathe 4s ease-in-out infinite;
+  transform-origin: 50% 100%;
+}
+.np-sway {
+  animation: np-sway 7s ease-in-out infinite;
+  transform-origin: 50% 100%;
+  transform-box: fill-box;
+}
+.np-blink {
+  animation: np-blink 4.5s infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+.np-glow {
+  animation: np-glow 1.6s ease-in-out infinite;
+}
+.np-nod {
+  animation: np-nod 0.9s ease-in-out;
+  transform-origin: 50% 90%;
+  transform-box: fill-box;
+}
+
+/* "VERIFIED" stamp (timings are set inline from PassportStamp.jsx). */
+@keyframes stamp-drop {
+  0% {
+    transform: translateY(-60px) scale(1.6) rotate(-14deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(0) scale(0.92) rotate(-14deg);
+    opacity: 1;
+  }
+  80% {
+    transform: translateY(0) scale(1.06) rotate(-14deg);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(-14deg);
+    opacity: 1;
+  }
+}
+@keyframes passport-shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0);
+  }
+  25% {
+    transform: translateX(-4px) rotate(-1.5deg);
+  }
+  50% {
+    transform: translateX(3px) rotate(1deg);
+  }
+  75% {
+    transform: translateX(-2px) rotate(-0.5deg);
+  }
+}
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-slide-in,
-  .animate-pulse {
+  .animate-sheet-up,
+  .animate-pulse,
+  .typing-dot,
+  .np-breathe,
+  .np-sway,
+  .np-blink,
+  .np-glow,
+  .np-nod {
     animation: none;
   }
 }

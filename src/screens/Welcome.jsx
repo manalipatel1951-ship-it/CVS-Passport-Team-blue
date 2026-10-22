@@ -1,67 +1,69 @@
+import { useRef } from 'react';
 import PhoneShell from '../components/PhoneShell.jsx';
 import BigButton from '../components/BigButton.jsx';
+import CaregiverIllustration from '../components/CaregiverIllustration.jsx';
+import Icon from '../components/icons.jsx';
+import { LOGO_SRC } from '../components/CvsLogo.jsx';
+import Splash from './Splash.jsx';
+import { useAppState } from '../state/AppState.jsx';
 
 const benefits = [
+  { icon: 'health', text: "See your loved one's health info, the same way they do" },
   {
-    icon: 'M3 12h4l3-8 4 16 3-8h4',
-    text: "See your loved one's health info, the same way they do",
+    icon: 'chat',
+    text: 'Get help with everyday concerns like rashes, colds, and allergies from MinuteTwin, our AI care assistant, anytime',
   },
-  {
-    icon: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
-    text: 'Get help with minor issues from an AI NP, anytime',
-  },
-  {
-    icon: 'M12 8v4l3 3M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',
-    text: 'Skip the time off work for a walk-in visit',
-  },
+  { icon: 'findCare', text: 'Skip the time off work for a walk-in visit' },
+  { icon: 'lock', text: 'Your loved one stays in control of what you can see' },
 ];
 
-// Step 1: first screen of the demo. No Back button, since there's nowhere to go back to.
+// First screen of the demo (after the splash animation). No Back button: nowhere to go back to.
 export default function Welcome() {
-  return (
-    <PhoneShell hideHeader>
-      <div className="flex flex-1 flex-col">
-        <p className="self-center rounded-full bg-canvas px-3 py-1 text-sm font-semibold text-ink-soft">
-          Concept prototype
-        </p>
+  const { splashDone, finishSplash } = useAppState();
+  const logoRef = useRef(null);
 
-        <div className="mt-10 flex flex-col items-center text-center">
+  return (
+    <PhoneShell
+      hideHeader
+      footer={
+        <div className="border-t border-line bg-white px-4 pb-4 pt-3">
+          <BigButton to="/fam">Get started</BigButton>
+        </div>
+      }
+      overlay={!splashDone && <Splash targetRef={logoRef} onDone={finishSplash} />}
+    >
+      <div className="flex flex-1 flex-col">
+        {/* Light blue hero, matching the CVS app */}
+        <section className="-mx-4 -mt-5 bg-cvs-blue-light px-4 pb-4 pt-5 text-center">
+          <p className="inline-block rounded-full bg-white px-3 py-1 text-sm font-semibold text-ink-soft">
+            Concept prototype
+          </p>
           <img
-            src="./brand/cvs-health-logo.png"
+            ref={logoRef}
+            src={LOGO_SRC}
             alt="CVS Health"
-            className="h-auto w-64 max-w-full"
+            className="mx-auto mt-6 h-auto w-64 max-w-full"
+            style={{ visibility: splashDone ? 'visible' : 'hidden' }}
           />
-          <h1 className="mt-8 text-3xl font-bold text-ink">Caregiver Passport</h1>
-          <p className="mt-3 text-lg text-ink-soft">
+          <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-ink">
+            Caregiver Passport
+          </h1>
+          <p className="mt-2 text-lg text-ink-soft">
             Help care for the people you love, all in one place.
           </p>
-        </div>
+          <CaregiverIllustration className="mt-4" />
+        </section>
 
-        <ul className="mt-10 flex flex-col gap-5">
+        <ul className="mt-6 flex flex-col gap-4">
           {benefits.map((b) => (
             <li key={b.text} className="flex items-center gap-4">
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-cvs-red-light text-cvs-red">
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  className="h-6 w-6"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d={b.icon} />
-                </svg>
+              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-canvas text-cvs-red">
+                <Icon name={b.icon} />
               </span>
               <span className="text-base text-ink">{b.text}</span>
             </li>
           ))}
         </ul>
-
-        <div className="mt-auto pt-10">
-          <BigButton to="/fam">Get started</BigButton>
-        </div>
       </div>
     </PhoneShell>
   );

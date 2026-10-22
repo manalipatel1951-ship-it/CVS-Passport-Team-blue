@@ -1,4 +1,10 @@
-import { getSummary, getVideoLine, initialTwinState, twinRespond } from './twin.js';
+import {
+  chooseQuickStart,
+  getSummary,
+  getVideoLines,
+  initialTwinState,
+  twinRespond,
+} from './twin.js';
 
 const NAME = 'Sarah';
 const text = (t) => ({ type: 'text', text: t });
@@ -15,53 +21,55 @@ function play(inputs, state = initialTwinState(NAME)) {
 }
 
 describe('MinuteTwin script engine', () => {
-  it('starts with the rash script pre-typed', () => {
+  it('starts with the rash message pre-typed', () => {
     expect(initialTwinState(NAME).prefill).toBe(
       'Hi, my mother Sarah has a rash on her left upper arm.',
     );
   });
 
-  it('plays the full rash script: photo, video, care levels, summary', () => {
-    let { state, texts, parts } = play([text(initialTwinState(NAME).prefill)]);
-    expect(texts[0]).toMatch(/left upper arm, got it/);
-    expect(state.prefill).toBe("It started yesterday. She says it's really itchy.");
-
-    ({ state, texts, parts } = play([text(state.prefill), text(state.prefill)], state));
-    expect(texts.at(-1)).toMatch(/send a photo/);
+  it('rash: message, then photo with caption, then video, then done', () => {
+    let { state, texts } = play([text(initialTwinState(NAME).prefill)]);
+    expect(texts[0]).toMatch(/send a photo of the rash/);
     expect(state.waiting).toBe('photo');
+    expect(state.prefill).toMatch(/^Started yesterday/);
 
-    ({ state, parts } = play([{ type: 'photo' }], state));
+    let parts;
+    ({ state, parts } = play([{ type: 'photo', caption: state.prefill }], state));
+    expect(parts[0].text).toMatch(/quick video call/);
     expect(parts[0].action).toBe('video');
     expect(state.waiting).toBe('video');
-    expect(getVideoLine(state, NAME)).toBe(
-      "Hi there, can you show me the rash on Sarah's left upper arm?",
-    );
+    expect(getVideoLines(state, NAME)[0]).toMatch(/closer to the rash on Sarah's left upper arm/);
 
     ({ state, parts } = play([{ type: 'videoEnded' }], state));
-    expect(parts[0].text).toMatch(/contact dermatitis/);
-    expect(parts[1].careLevels).toBe(true);
-    expect(state.prefill).toBe('Thank you for the information.');
-
-    ({ state, parts } = play([text(state.prefill)], state));
-    expect(parts[1].summaryCard).toBe(true);
+    expect(parts).toHaveLength(0);
     expect(state.waiting).toBe('done');
     expect(state.completedAt).not.toBeNull();
     expect(getSummary(state).condition).toBe('Likely contact dermatitis');
   });
 
   it.each([
-    ['She has burning when she pees', 'infection', /urinary tract infection/],
-    ['She has a cough and a runny nose', 'cold', /common cold/],
-    ['She has a fever', 'fever', /mild virus/],
-  ])('"%s" follows the %s path to a summary', (first, pathId, conclusion) => {
-    let { state } = play([text(first)]);
-    expect(state.pathId).toBe(pathId);
-    let result = play([text(state.prefill), text(state.prefill)], state);
-    expect(result.texts.at(-1)).toMatch(conclusion);
-    expect(result.parts.some((p) => p.careLevels)).toBe(true);
+    ['cold', /common cold/],
+    ['allergy', /seasonal allergies/],
+  ])('quick start "%s" follows its path to a summary card', (pathId, conclusion) => {
+    const chosen = chooseQuickStart(pathId, initialTwinState(NAME), NAME);
+    let result = play([text(chosen.prefill)], chosen);
+    expect(result.state.pathId).toBe(pathId);
     result = play([text(result.state.prefill)], result.state);
+    expect(result.texts[0]).toMatch(conclusion);
+    expect(result.parts.some((p) => p.summaryCard)).toBe(true);
     expect(result.state.waiting).toBe('done');
-    expect(getSummary(result.state)).not.toBeNull();
+  });
+
+  it.each([
+    ['She has an infected scrape on her knee', 'cut'],
+    ['She has a fever', 'fever'],
+    ['Her pollen allergies again, itchy eyes', 'allergy'],
+  ])('typing "%s" follows the %s path', (first, pathId) => {
+    expect(play([text(first)]).state.pathId).toBe(pathId);
+  });
+
+  it('"Something else" clears the box', () => {
+    expect(chooseQuickStart(null, initialTwinState(NAME), NAME).prefill).toBe('');
   });
 
   it('replies naturally and waits when nothing matches', () => {
@@ -70,20 +78,18 @@ describe('MinuteTwin script engine', () => {
       'I can help with that. Can you tell me what Sarah is experiencing and when it started?',
     );
     expect(state.pathId).toBeNull();
-    expect(state.prefill).toBe('');
   });
 
   it('shows the 911 alert only when emergency words are typed', () => {
     const { parts, state } = play([text('She has chest pain')]);
     expect(parts[0].alert).toBe('er');
     expect(state.escalation).toBe('er');
-    // MinuteTwin's own messages mention swelling, but that never triggers it.
-    const rash = play([text('rash'), text('yesterday'), text('no fever')]);
+    const rash = play([text('rash'), { type: 'photo', caption: 'no fever' }]);
     expect(rash.parts.some((p) => p.alert)).toBe(false);
   });
 
-  it('nudges instead of skipping ahead when waiting for a photo or the video', () => {
-    let { state } = play([text('rash'), text('yesterday'), text('detergent')]);
+  it('nudges instead of skipping ahead when waiting for the photo or the video', () => {
+    let { state } = play([text('rash')]);
     expect(play([text('ok')], state).texts[0]).toMatch(/camera button/);
     ({ state } = play([{ type: 'photo' }], state));
     expect(play([text('ok')], state).texts[0]).toMatch(/Start video call/);

@@ -3,12 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import PhoneShell from '../components/PhoneShell.jsx';
 import BigButton from '../components/BigButton.jsx';
 import TextField from '../components/TextField.jsx';
-import StepIndicator from '../components/StepIndicator.jsx';
-import ProfileIcon, { iconKeys, profileIcons } from '../components/ProfileIcon.jsx';
+import PassportHero, { HeaderHeart } from '../components/PassportHero.jsx';
 import { relationships } from '../data/family.js';
 import { useAppState } from '../state/AppState.jsx';
 
-// Step 1 of 3: who are you adding? (Pre-filled with demo data, all editable.)
+// Valid US date: MM/DD/YYYY
+const US_DATE = /^(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])\/(19|20)\d{2}$/;
+
+// Adds the slashes as you type: "04121958" → "04/12/1958".
+function formatDate(raw) {
+  const digits = raw.replace(/\D/g, '').slice(0, 8);
+  return [digits.slice(0, 2), digits.slice(2, 4), digits.slice(4)].filter(Boolean).join('/');
+}
+
+// Step 1 of 3: who are you adding? Just enough to find their CVS account.
 export default function AddMember() {
   const { draft, setDraft } = useAppState();
   const [errors, setErrors] = useState({});
@@ -21,37 +29,15 @@ export default function AddMember() {
     const found = {};
     if (!draft.firstName.trim()) found.firstName = 'Please enter a first name';
     if (!draft.lastName.trim()) found.lastName = 'Please enter a last name';
-    if (!draft.dateOfBirth) found.dateOfBirth = 'Please enter a date of birth';
+    if (!US_DATE.test(draft.dateOfBirth)) found.dateOfBirth = 'Please enter a date like 04/12/1958';
     setErrors(found);
-    if (Object.keys(found).length === 0) navigate('/fam/add/verify');
+    if (Object.keys(found).length === 0) navigate('/fam/add/found');
   };
 
   return (
-    <PhoneShell title="Add family member" back="/fam">
-      <StepIndicator step={1} />
+    <PhoneShell title="Who are you adding?" back="/fam" actions={<HeaderHeart />}>
+      <PassportHero step={1} intro="We'll use this to find their CVS account." />
       <form onSubmit={next} noValidate className="flex flex-1 flex-col gap-5">
-        <fieldset className="flex flex-col gap-2">
-          <legend className="mb-2 text-lg font-bold text-ink">
-            Does this person already have a CVS account?
-          </legend>
-          {['yes', 'no'].map((v) => (
-            <label
-              key={v}
-              className="flex min-h-12 items-center gap-3 rounded-xl border-2 border-line px-3 text-lg"
-            >
-              <input
-                type="radio"
-                name="hasCvsAccount"
-                value={v}
-                checked={draft.hasCvsAccount === v}
-                onChange={update('hasCvsAccount')}
-                className="h-5 w-5 accent-cvs-blue"
-              />
-              {v === 'yes' ? 'Yes' : 'No'}
-            </label>
-          ))}
-        </fieldset>
-
         <TextField
           id="firstName"
           label="First name"
@@ -70,64 +56,37 @@ export default function AddMember() {
         />
         <TextField
           id="dateOfBirth"
-          label="Date of birth"
-          type="date"
+          label="Date of birth (MM/DD/YYYY)"
+          inputMode="numeric"
+          placeholder="MM/DD/YYYY"
           value={draft.dateOfBirth}
-          onChange={update('dateOfBirth')}
+          onChange={(e) => setDraft({ ...draft, dateOfBirth: formatDate(e.target.value) })}
           error={errors.dateOfBirth}
+          autoComplete="off"
         />
-        <TextField
-          id="phone"
-          label="Phone (optional)"
-          type="tel"
-          value={draft.phone}
-          onChange={update('phone')}
-        />
-
-        <div className="flex flex-col gap-1">
-          <label htmlFor="relationship" className="text-base font-semibold text-ink">
-            They are my…
-          </label>
-          <select
-            id="relationship"
-            value={draft.relationship}
-            onChange={update('relationship')}
-            className="min-h-12 rounded-lg border-2 border-line bg-white px-3 text-lg"
-          >
-            {relationships.map((r) => (
-              <option key={r}>{r}</option>
-            ))}
-          </select>
-        </div>
 
         <fieldset>
-          <legend className="mb-2 text-base font-semibold text-ink">Pick an icon</legend>
-          <div className="grid grid-cols-4 gap-3">
-            {iconKeys.map((key) => (
-              <label key={key} className="relative flex cursor-pointer justify-center">
+          <legend className="mb-2 text-base font-semibold text-ink">They are my…</legend>
+          <div className="flex flex-wrap gap-2">
+            {relationships.map((r) => (
+              <label key={r} className="cursor-pointer">
                 <input
                   type="radio"
-                  name="icon"
-                  value={key}
-                  checked={draft.icon === key}
-                  onChange={update('icon')}
-                  aria-label={profileIcons[key].name}
+                  name="relationship"
+                  value={r}
+                  checked={draft.relationship === r}
+                  onChange={update('relationship')}
                   className="peer sr-only"
                 />
-                <ProfileIcon
-                  icon={key}
-                  size="md"
-                  className="h-16 w-16 ring-offset-2 peer-checked:ring-4 peer-checked:ring-cvs-blue peer-focus-visible:ring-4 peer-focus-visible:ring-cvs-blue"
-                />
+                <span className="flex min-h-12 items-center rounded-full border-2 border-line bg-white px-5 text-lg text-ink peer-checked:border-cvs-blue peer-checked:bg-cvs-blue peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cvs-blue">
+                  {r}
+                </span>
               </label>
             ))}
           </div>
         </fieldset>
 
-        <div className="mt-auto grid grid-cols-2 gap-3 pt-4">
-          <BigButton to="/fam" variant="secondary">
-            Back
-          </BigButton>
+        <div className="mt-auto pt-4">
           <BigButton type="submit">Next</BigButton>
         </div>
       </form>
