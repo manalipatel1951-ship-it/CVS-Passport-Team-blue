@@ -53,7 +53,7 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - Plain language, no medical jargon.
 - Large, easy-to-tap buttons (≥48px) and readable text (≥16px).
 - Every profile tile (My Fam, "Who needs care?") has the same structure and height: icon · name · subtitle · tag. My Fam uses three columns.
-- Headers: equal left and right padding, title vertically centered with the icons. On Caregiver Passport steps, the small CVS heart sits **just left of the title** (never top right, where it looks like a favorite button).
+- Headers: equal left and right padding, title vertically centered with the icons. Titles never wrap: on Sarah's Health the title is slightly smaller on narrow phones, and just the first name under 350px wide. On Caregiver Passport steps, the small CVS heart sits **just left of the title** (never top right, where it looks like a favorite button).
 - No visible scrollbars inside the phone (scrolling still works). Respect the iPhone notch and home indicator (safe areas).
 - The visit uses a fixed demo date and time: **Thu, Oct 22, 2026, 2:15 PM** (`DEMO.visitTime` in `src/config/demo.js`), on the summary and in Previous visits.
 - Every screen has a clear way to go back. **Exceptions:** My Fam is the home screen (bottom nav instead of Back), "You're verified" has no Back (the ID is already verified), and the video call has no Back (End call ends it).

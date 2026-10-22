@@ -42,7 +42,6 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
 ## Polish notes (ideas, not yet requested)
 - Verify steps: the privacy note can sit just below the fold on small phones (375×740), because the camera is large.
 - My Fam at 375×740: the MinuteTwin card's button needs a small scroll (it fits on taller phones).
-- Sarah's Health header: "Sarah's Health" wraps onto two lines at 375px wide next to the three round icons.
 - Script text says "her" (written for Sarah). Make it neutral if the loved one changes.
 
 ## Log
@@ -107,3 +106,5 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
     identical action rows, "…at CVS Pharmacy".
   - Video: blurred clinic background, redrawn professional NP with stethoscope and "MinuteTwin" badge, placed
     so the badge stays clear of captions and buttons.
+- **2026-10-22:** Sarah's Health title never wraps: 17px on phones under 400px wide, just "Sarah" under 350px
+  (screen readers always hear "Sarah's Health"). Checked at 430/390/375/360/320px.

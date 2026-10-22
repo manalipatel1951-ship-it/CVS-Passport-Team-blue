@@ -41,6 +41,7 @@ Tick a box when it passes. Update this list whenever a screen changes.
 
 ## Flow 2: MinuteTwin
 - [ ] My Fam card: "Talk to MinuteTwin, our AI care assistant trained by MinuteClinic nurse practitioners…" → **Start a MinuteTwin visit** opens "Who needs care?". Sarah opens her visit, and the others show "Not part of this demo"
+- [ ] Sarah's Health: the title stays on one line next to the three icons, even on a narrow phone (just "Sarah" on the narrowest)
 - [ ] Sarah's Health: illustration, MinuteTwin card ("everyday concerns like rashes, colds, and allergies"), and the profile icon (tap → My Fam)
 - [ ] Chat opens with MinuteTwin's AI greeting, **outlined** quick-start buttons and "For emergencies, call 911." Tapping one fills it dark blue
 - [ ] The rash message is pre-typed and fully visible, with no scrollbar in the box. **Send** → the quick starts disappear → typing dots → MinuteTwin asks for a photo and details

@@ -24,7 +24,18 @@ export default function Dashboard() {
 
   return (
     <PhoneShell
-      title={`${lovedOne.firstName}'s Health`}
+      title={
+        // Never wraps next to the three header icons: slightly smaller text on narrow phones,
+        // and just the first name on very narrow ones (under 350px wide).
+        // Screen readers always hear the full title.
+        <>
+          <span className="sr-only">{lovedOne.firstName}&apos;s Health</span>
+          <span aria-hidden="true" className="whitespace-nowrap text-[17px] min-[400px]:text-xl">
+            <span className="min-[350px]:hidden">{lovedOne.firstName}</span>
+            <span className="hidden min-[350px]:inline">{lovedOne.firstName}&apos;s Health</span>
+          </span>
+        </>
+      }
       leading={<ProfileSwitcher person={lovedOne} />}
       actions={<HeaderActions />}
       banner={<ContextBanner person={lovedOne} />}
