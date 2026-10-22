@@ -25,13 +25,14 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - No real logins, no real database, no live AI.
 - **Start of the demo:** an animated CVS Health splash (heart fades in → two heartbeats → heart slides left while "CVSHealth" slides out from behind it → hold → the logo glides up into its Welcome spot while Welcome fades in). About 2.4s, plays every time the demo starts, tap to skip. Timings at the top of `src/screens/Splash.jsx`. Uses the real logo file split by clipping; **never redraw the logo**.
 - **Flow 1, Caregiver Passport** (3 steps):
-  1. "Who are you adding?": first name, last name, date of birth (US format 04/12/1958), relationship chips. Then "We found Sarah's account" (Sarah M., born April 1958) → "Yes, that's her".
-  2. Verify it's you: the **caregiver** verifies **herself** with ID front → ID back → selfie with a liveness cue → "Matching your selfie to your ID…" → "You're verified" (passport stamp animation, checklist, what-happens-next timeline, **pick an icon for Sarah**, "Send request to Sarah"). "Verify another way" offers manual ID entry or in person at a CVS Pharmacy.
+  1. "Who are you adding?": first name, last name, date of birth (US format 04/12/1958), relationship chips on one row. Then "Searching for Sarah's CVS account…" (~1s) → "Is this Sarah?" card (person icon, Sarah M., born April 1958, Chicago, IL area, privacy note) → "Yes, that's her".
+  2. Verify it's you: the **caregiver** verifies **herself**. Each step has one short headline and a Front · Back · Selfie icon row. ID front → "Front scanned" → ID back → selfie: the liveness cue ("Slowly turn your head", the oval fills) runs as soon as the camera opens, and **Take selfie** unlocks when it's done → "Matching your selfie to your ID…" → "You're verified" (stamp animation, timeline starting "You're verified · ID and selfie matched", **pick an icon for Sarah** fully visible, "Send request to Sarah"). Under the main button: "Enter manually" · "Verify in store" (selfie step: "Verify in store" only).
   3. Approval: Sarah shows as **Pending** on My Fam, then "Sarah approved your access" slides in after ~3 seconds. Sarah's own approval screens are out of scope.
 - **Flow 2, MinuteTwin:** Sarah's Health → MinuteTwin chat → (rash path) video call → "Preparing Sarah's visit summary…" → visit summary → Close → Sarah's Health with "Visit summary saved" and "New" on Previous visits. My Fam's "Start a MinuteTwin visit" opens a "Who needs care?" picker.
 - Flow 2 is locked until Sarah has approved access.
-- **MinuteTwin chat is scripted** (`src/ai/twinScripts.js`). It opens with MinuteTwin introducing itself as AI, plus quick-start buttons (Rash or skin issue · Cold or flu · Allergies · Something else). The caregiver's next message is always pre-typed, so the presenter just taps Send. Every path has the same short shape: message → one combined question → pre-filled answer → wrap-up.
-  - **Rash** (main demo): message → photo + caption sent together → "Can we do a quick video call?" → video → summary (no more chat after the call).
+- **MinuteTwin chat is scripted** (`src/ai/twinScripts.js`). It opens with MinuteTwin introducing itself as AI, plus quick-start buttons (Rash or skin issue · Cold or flu · Allergies · Something else). They're all outlined until one is tapped (then it fills dark blue), and they disappear once the first message is sent. The caregiver's next message is always pre-typed, so the presenter just taps Send. Every path has the same short shape: message → one combined question → pre-filled answer → wrap-up.
+  - **Rash** (main demo): message → photo + caption sent together → pill-icon card "Checked Sarah's medications: no recent changes." + "Can we do a quick video call?" (button with a video camera icon) → video → summary (no more chat after the call).
+  - Every path shows the pill-icon medications card before MinuteTwin's conclusion.
   - **Infected cut/scrape, cold, fever, allergies:** wrap-up message plus a "View summary" card in the chat.
   - "When to get more care" appears **only on the summary screen**. No quick-reply buttons for now.
   - A message that matches no path gets "I can help with that. Can you tell me what Sarah is experiencing and when it started?" The 911 alert appears **only** when emergency words are actually typed.
@@ -51,6 +52,10 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - Always offer a manual alternative to scanning or face matching ("Verify another way").
 - Plain language, no medical jargon.
 - Large, easy-to-tap buttons (≥48px) and readable text (≥16px).
+- Every profile tile (My Fam, "Who needs care?") has the same structure and height: icon · name · subtitle · tag. My Fam uses three columns.
+- Headers: equal left and right padding, title vertically centered with the icons. On Caregiver Passport steps, the small CVS heart sits **just left of the title** (never top right, where it looks like a favorite button).
+- No visible scrollbars inside the phone (scrolling still works). Respect the iPhone notch and home indicator (safe areas).
+- The visit uses a fixed demo date and time: **Thu, Oct 22, 2026, 2:15 PM** (`DEMO.visitTime` in `src/config/demo.js`), on the summary and in Previous visits.
 - Every screen has a clear way to go back. **Exceptions:** My Fam is the home screen (bottom nav instead of Back), "You're verified" has no Back (the ID is already verified), and the video call has no Back (End call ends it).
 - Features outside the demo (other tabs, header icons, summary actions, "You", Alex/Maya, "Not her?", in-person verification) show a "Not part of this demo" pop-up.
 - Green success banners can be closed with × and fade out on their own.
@@ -65,7 +70,8 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - Floating rounded bottom nav: Home (My Fam) · Your Health · Find Care · Vaccine Records.
 - My Fam and health screens' header: round chat / messages / cart buttons on the right. Health screens also show the person's profile icon on the left (tap → My Fam).
 - People are shown with fun, original **profile icons** (You = star, Sarah = whatever was picked, airplane by default; Alex = rocket; Maya = sunflower), never letter initials.
-- Illustrations are original flat drawings (`CaregiverIllustration.jsx`, `NpIllustration.jsx`). The NP on the video call has subtle "live" movement and a digital-twin glow.
+- Illustrations are original flat drawings (`CaregiverIllustration.jsx`, `NpIllustration.jsx`). The NP on the video call is a professional adult in a white coat with a visible stethoscope and a "MinuteTwin" name badge, on a soft blurred light blue clinic background. She has subtle "live" movement and a digital-twin glow.
+- Summary action buttons are identical list rows (icon · label · arrow). A "NP review: Pending" tag sits in the green confirmation banner.
 - Colors live in `src/index.css`; profile icons in `src/components/ProfileIcon.jsx`; the logo is `public/brand/cvs-health-logo.png` (transparent background).
 
 ## Definition of done (every step)

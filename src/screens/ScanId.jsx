@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PhoneShell from '../components/PhoneShell.jsx';
-import BigButton from '../components/BigButton.jsx';
-import Sheet from '../components/Sheet.jsx';
 import Icon from '../components/icons.jsx';
-import PassportHero, { FaceArt, HeaderHeart, IdCardArt } from '../components/PassportHero.jsx';
+import PassportHero, { HeaderHeart } from '../components/PassportHero.jsx';
 import { DELAYS } from '../config/demo.js';
 import { useAppState } from '../state/AppState.jsx';
 
@@ -12,47 +10,52 @@ import { useAppState } from '../state/AppState.jsx';
 // license or someone else's photo can't be used. Pretend camera, nothing is captured.
 //
 // Phases:  front → scanningFront → frontDone → back → scanningBack →
-//          selfie → liveness → matching → (success screen)
+//          selfie (liveness: "Slowly turn your head", oval fills) → selfieReady →
+//          matching ("Matching your selfie to your ID…") → success screen
 const AUTO_NEXT = {
   scanningFront: ['frontDone', 'scan'],
   frontDone: ['back', 'frontScanned'],
   scanningBack: ['selfie', 'scan'],
-  liveness: ['matching', 'liveness'],
+  selfie: ['selfieReady', 'liveness'],
 };
 
-const STEPS = ['ID front', 'ID back', 'Selfie'];
-const stepOf = (phase) => (/front/i.test(phase) ? 0 : /back/i.test(phase) ? 1 : 2);
+const PARTS = [
+  { label: 'Front', icon: 'cardFront' },
+  { label: 'Back', icon: 'cardBack' },
+  { label: 'Selfie', icon: 'face' },
+];
+const partOf = (phase) => (/front/i.test(phase) ? 0 : /back/i.test(phase) ? 1 : 2);
 
-// "ID front · ID back · Selfie", with finished steps checked off.
-function ProgressRow({ current }) {
+// Front · Back · Selfie as small icons: current one highlighted, finished ones checked.
+function PartsRow({ current }) {
   return (
-    <ol
-      className="mt-3 flex flex-wrap items-center gap-x-2 text-base"
-      aria-label="Verification steps"
-    >
-      {STEPS.map((s, i) => (
-        <li key={s} className="flex items-center gap-1">
-          {i > 0 && (
-            <span aria-hidden="true" className="mr-1 text-ink-soft">
-              ·
-            </span>
-          )}
-          {i < current && <Icon name="check" className="h-4 w-4 text-cvs-red" strokeWidth={3} />}
-          <span
-            aria-current={i === current ? 'step' : undefined}
-            className={
-              i === current
-                ? 'font-bold text-ink underline decoration-cvs-red decoration-2 underline-offset-4'
-                : i < current
-                  ? 'text-ink'
-                  : 'text-ink-soft'
-            }
+    <ol className="mt-3 grid grid-cols-3 gap-2" aria-label="Verification steps">
+      {PARTS.map((p, i) => {
+        const done = i < current;
+        const now = i === current;
+        return (
+          <li
+            key={p.label}
+            aria-current={now ? 'step' : undefined}
+            className="flex flex-col items-center gap-1"
           >
-            {s}
-            {i < current && <span className="sr-only"> (done)</span>}
-          </span>
-        </li>
-      ))}
+            <span
+              className={`relative flex h-10 w-10 items-center justify-center rounded-full ${now ? 'bg-cvs-blue text-white' : done ? 'bg-white text-ink' : 'bg-white/60 text-ink-soft'}`}
+            >
+              <Icon name={p.icon} />
+              {done && (
+                <span className="absolute -bottom-0.5 -right-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-cvs-red text-white">
+                  <Icon name="check" className="h-3.5 w-3.5" strokeWidth={3.5} />
+                </span>
+              )}
+            </span>
+            <span className={`text-sm ${now ? 'font-bold text-ink' : 'text-ink-soft'}`}>
+              {p.label}
+              {done && <span className="sr-only"> (done)</span>}
+            </span>
+          </li>
+        );
+      })}
     </ol>
   );
 }
@@ -60,12 +63,12 @@ function ProgressRow({ current }) {
 function IdCamera({ phase }) {
   const scanning = phase.startsWith('scanning');
   return (
-    <div className="relative flex h-60 items-center justify-center overflow-hidden rounded-3xl bg-neutral-800">
+    <div className="relative flex h-56 items-center justify-center overflow-hidden rounded-3xl bg-neutral-800">
       <span
         aria-hidden="true"
         className={`flex aspect-[1.586] w-[82%] items-end justify-center rounded-2xl border-4 border-dashed pb-3 text-sm font-semibold text-white ${scanning ? 'animate-pulse border-emerald-400' : 'border-white'}`}
       >
-        {/front/i.test(phase) ? 'Front of ID' : 'Back of ID'}
+        {/front/i.test(phase) ? 'Front' : 'Back'}
       </span>
       {phase === 'frontDone' && (
         <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-neutral-800/90 text-xl font-bold text-white">
@@ -79,11 +82,13 @@ function IdCamera({ phase }) {
   );
 }
 
+// Portrait camera, nearly full width. The liveness check starts as soon as it opens.
 function SelfieCamera({ phase }) {
-  const checking = phase === 'liveness';
+  const checking = phase === 'selfie';
+  const ready = phase === 'selfieReady' || phase === 'matching';
   return (
-    <div className="relative mx-auto flex h-72 w-60 items-center justify-center overflow-hidden rounded-3xl bg-neutral-800">
-      <svg aria-hidden="true" viewBox="0 0 160 210" className="h-56 w-44">
+    <div className="relative mx-auto flex aspect-[6/7] w-[88%] items-center justify-center overflow-hidden rounded-3xl bg-neutral-800">
+      <svg aria-hidden="true" viewBox="0 0 160 210" className="h-[72%]">
         <ellipse
           cx="80"
           cy="105"
@@ -93,9 +98,9 @@ function SelfieCamera({ phase }) {
           stroke="#fff"
           strokeWidth="4"
           strokeDasharray="8 7"
-          opacity={checking ? 0.35 : 1}
+          opacity={checking || ready ? 0.35 : 1}
         />
-        {checking && (
+        {(checking || ready) && (
           <ellipse
             cx="80"
             cy="105"
@@ -106,13 +111,21 @@ function SelfieCamera({ phase }) {
             strokeWidth="6"
             pathLength="100"
             strokeDasharray="100"
-            style={{ animation: `oval-fill ${DELAYS.liveness}ms linear forwards` }}
+            style={{
+              animation: checking ? `oval-fill ${DELAYS.liveness}ms linear forwards` : undefined,
+              strokeDashoffset: ready ? 0 : undefined,
+            }}
           />
         )}
       </svg>
       {checking && (
-        <span className="absolute bottom-4 rounded-full bg-black/70 px-3 py-1 text-base font-semibold text-white">
+        <span className="absolute bottom-5 rounded-full bg-black/70 px-3 py-1 text-base font-semibold text-white">
           Slowly turn your head
+        </span>
+      )}
+      {phase === 'selfieReady' && (
+        <span className="absolute bottom-5 flex items-center gap-1 rounded-full bg-emerald-700 px-3 py-1 text-base font-semibold text-white">
+          <Icon name="check" className="h-4 w-4" strokeWidth={3} /> Movement detected
         </span>
       )}
       {phase === 'matching' && (
@@ -127,7 +140,6 @@ function SelfieCamera({ phase }) {
 export default function ScanId() {
   const { draft, showNotice } = useAppState();
   const [phase, setPhase] = useState('front');
-  const [otherWay, setOtherWay] = useState(false);
   const statusRef = useRef(null);
   const navigate = useNavigate();
   const name = draft.firstName || 'your loved one';
@@ -150,9 +162,13 @@ export default function ScanId() {
     statusRef.current?.focus({ preventScroll: true });
   }, [phase]);
 
-  const current = stepOf(phase);
+  const current = partOf(phase);
   const isSelfie = current === 2;
-
+  const headline = [
+    'Scan your driver’s license or state ID',
+    'Now scan the back',
+    'Now take a quick selfie',
+  ][current];
   const tip = [
     'Use good lighting and avoid glare',
     'Make sure the barcode is fully visible',
@@ -162,30 +178,41 @@ export default function ScanId() {
     ? "Your selfie is only used to match your ID and isn't saved."
     : `This keeps ${name}'s health info safe. We use it only to confirm it's you.`;
   const status = {
-    front: 'Scan the front of your driver’s license or ID',
+    front: 'Scan the front of your ID',
     scanningFront: 'Scanning the front of your ID…',
     frontDone: 'Front scanned',
     back: 'Now scan the back of your ID',
     scanningBack: 'Scanning the back of your ID…',
-    selfie: 'Now take a quick selfie so we can match it to your ID',
-    liveness: 'Slowly turn your head',
+    selfie: 'Slowly turn your head',
+    selfieReady: 'Movement detected. Take your selfie.',
     matching: 'Matching your selfie to your ID…',
   }[phase];
   const action = {
-    front: ['Scan front of ID', 'scanningFront'],
-    back: ['Scan back of ID', 'scanningBack'],
-    selfie: ['Take selfie', 'liveness'],
+    front: ['Scan front', () => setPhase('scanningFront')],
+    back: ['Scan back', () => setPhase('scanningBack')],
+    selfie: ['Take selfie', null], // unlocks once the liveness check finishes
+    selfieReady: ['Take selfie', () => setPhase('matching')],
   }[phase];
+
+  const linkClass =
+    'flex min-h-12 items-center justify-center px-2 text-base font-semibold text-cvs-blue underline';
 
   return (
     <PhoneShell
       title="Verify it's you"
       back="/fam/add/found"
-      actions={<HeaderHeart />}
+      titleIcon={<HeaderHeart />}
       footer={
-        <div className="flex flex-col gap-1 border-t border-line bg-white px-4 pb-3 pt-3">
+        <div className="border-t border-line bg-white px-4 pb-2 pt-3">
           {action ? (
-            <BigButton onClick={() => setPhase(action[1])}>{action[0]}</BigButton>
+            <button
+              type="button"
+              onClick={action[1] ?? undefined}
+              disabled={!action[1]}
+              className="flex min-h-14 w-full items-center justify-center rounded-full bg-cvs-blue px-6 text-lg font-bold text-white disabled:bg-neutral-300 disabled:text-ink-soft"
+            >
+              {action[0]}
+            </button>
           ) : (
             <p
               aria-hidden="true"
@@ -194,37 +221,29 @@ export default function ScanId() {
               {status}
             </p>
           )}
-          <button
-            type="button"
-            onClick={() => setOtherWay(true)}
-            className="flex min-h-12 items-center justify-center text-lg font-semibold text-cvs-blue underline"
-          >
-            Verify another way
-          </button>
+          <div className="mt-1 flex items-center justify-center gap-4">
+            {!isSelfie && (
+              <>
+                <Link to="/fam/add/manual" className={linkClass}>
+                  Enter manually
+                </Link>
+                <span aria-hidden="true" className="text-ink-soft">
+                  ·
+                </span>
+              </>
+            )}
+            <button type="button" onClick={() => showNotice()} className={linkClass}>
+              Verify in store
+            </button>
+          </div>
         </div>
       }
-      overlay={
-        otherWay && (
-          <Sheet title="Verify another way" onClose={() => setOtherWay(false)}>
-            <div className="flex flex-col gap-3">
-              <BigButton to="/fam/add/manual">Enter your ID details manually</BigButton>
-              <BigButton variant="secondary" onClick={() => showNotice()}>
-                Verify in person at any CVS Pharmacy
-              </BigButton>
-            </div>
-          </Sheet>
-        )
-      }
     >
-      <PassportHero
-        step={2}
-        intro="Scan the front and back of your own ID, then take a quick selfie that's matched to the photo on the ID."
-        art={isSelfie ? <FaceArt /> : <IdCardArt />}
-      >
-        <ProgressRow current={current} />
+      <PassportHero step={2} progress={current / 3} headline={headline}>
+        <PartsRow current={current} />
       </PassportHero>
 
-      <div className="flex flex-1 flex-col gap-3">
+      <div className="flex flex-col gap-3">
         <p ref={statusRef} tabIndex={-1} role="status" className="sr-only">
           {status}
         </p>

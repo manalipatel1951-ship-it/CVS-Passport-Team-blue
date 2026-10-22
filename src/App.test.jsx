@@ -9,7 +9,18 @@ function start(hash = '#/') {
   return userEvent.setup();
 }
 
-// Flow 1: who are you adding → found account → verify yourself → pick an icon → send request.
+// Verify it's you: front → back → selfie (liveness) → success screen.
+async function scanAndSelfie(user) {
+  await user.click(screen.getByRole('button', { name: 'Scan front' }));
+  await user.click(await screen.findByRole('button', { name: 'Scan back' }));
+  expect(await screen.findByText('Movement detected')).toBeInTheDocument();
+  // On the selfie step, only "Verify in store" is offered.
+  expect(screen.queryByRole('link', { name: 'Enter manually' })).not.toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Verify in store' })).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Take selfie' }));
+}
+
+// Flow 1: who are you adding → is this Sarah? → verify yourself → pick an icon → send request.
 async function addSarah(user, { manual = false, icon } = {}) {
   await user.click(screen.getByRole('link', { name: 'Get started' }));
   await user.click(screen.getByRole('link', { name: /add someone/i }));
@@ -17,27 +28,31 @@ async function addSarah(user, { manual = false, icon } = {}) {
   expect(screen.getByText('Step 1 of 3')).toBeInTheDocument();
   expect(screen.getByLabelText(/date of birth/i)).toHaveValue('04/12/1958');
   await user.click(screen.getByRole('button', { name: 'Next' }));
-  expect(screen.getByText("We found Sarah's account")).toBeInTheDocument();
+  expect(screen.getByRole('heading', { name: 'Is this Sarah?' })).toBeInTheDocument();
+  expect(await screen.findByText("We found Sarah's account")).toBeInTheDocument();
   expect(screen.getByText('Born April 1958')).toBeInTheDocument();
+  expect(screen.getByText('Chicago, IL area')).toBeInTheDocument();
   await user.click(screen.getByRole('link', { name: "Yes, that's her" }));
   expect(screen.getByText('Step 2 of 3')).toBeInTheDocument();
   if (manual) {
-    await user.click(screen.getByRole('button', { name: 'Verify another way' }));
-    await user.click(screen.getByRole('link', { name: 'Enter your ID details manually' }));
+    await user.click(screen.getByRole('link', { name: 'Enter manually' }));
     await user.click(screen.getByRole('button', { name: 'Verify me' }));
   } else {
-    await user.click(screen.getByRole('button', { name: 'Scan front of ID' }));
-    await user.click(await screen.findByRole('button', { name: 'Scan back of ID' }));
-    await user.click(await screen.findByRole('button', { name: 'Take selfie' }));
+    await scanAndSelfie(user);
   }
   expect(await screen.findByRole('heading', { name: "You're verified" })).toBeInTheDocument();
+  expect(
+    screen.getByText(manual ? 'ID details matched' : 'ID and selfie matched'),
+  ).toBeInTheDocument();
   expect(screen.queryByRole('button', { name: 'Back' })).not.toBeInTheDocument();
   if (icon) await user.click(screen.getByRole('radio', { name: icon }));
   await user.click(screen.getByRole('button', { name: 'Send request to Sarah' }));
 }
 
+const sarahTile = () => screen.findByRole('link', { name: /sarah.*full access/i });
+
 async function openSarahsHealth(user) {
-  await user.click(await screen.findByRole('link', { name: /sarah.*full access/i }));
+  await user.click(await sarahTile());
 }
 
 describe('the whole demo, end to end', () => {
@@ -45,28 +60,36 @@ describe('the whole demo, end to end', () => {
     const user = start();
     await addSarah(user);
 
-    // My Fam: Sarah approves after a moment, then she's tappable.
+    // My Fam: Pending first, then Sarah approves after a moment and becomes tappable.
     expect(await screen.findByText('Sarah approved your access')).toBeInTheDocument();
     await openSarahsHealth(user);
     expect(screen.getByRole('heading', { name: "Sarah's Health" })).toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: 'Start a MinuteTwin visit' }));
 
-    // Chat: greeting says it's AI; the first message is pre-typed.
+    // Chat: greeting says it's AI; quick starts are all outlined; the first message is pre-typed.
     expect(screen.getByText(/I'm AI, not a real person/)).toBeInTheDocument();
     expect(screen.getByText('For emergencies, call 911.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Rash or skin issue' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
     expect(screen.getByLabelText('Message')).toHaveValue(
       'Hi, my mother Sarah has a rash on her left upper arm.',
     );
     await user.click(screen.getByRole('button', { name: 'Send' }));
     expect(await screen.findByText(/Could you send a photo of the rash/)).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Rash or skin issue' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Start video call' })).not.toBeInTheDocument();
 
-    // Photo + pre-filled caption, sent together.
+    // Photo + pre-filled caption, sent together; then the medication card and video call.
     await user.click(screen.getByRole('button', { name: 'Add a photo' }));
     expect(screen.getByLabelText('Message')).toHaveValue(
       "Started yesterday and it's really itchy. No fever. She switched detergents last week.",
     );
     await user.click(screen.getByRole('button', { name: 'Send' }));
+    expect(
+      await screen.findByText("Checked Sarah's medications: no recent changes."),
+    ).toBeInTheDocument();
     await user.click(await screen.findByRole('button', { name: 'Start video call' }));
 
     // Video: labeled as AI, never a nurse. End call → preparing → summary.
@@ -79,7 +102,12 @@ describe('the whole demo, end to end', () => {
     expect(
       await screen.findByRole('heading', { name: 'Likely contact dermatitis' }),
     ).toBeInTheDocument();
+    expect(screen.getByText('Thu, Oct 22, 2026, 2:15 PM')).toBeInTheDocument();
+    expect(screen.getByText('NP review: Pending')).toBeInTheDocument();
     expect(screen.getByText('Photo and video reviewed')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /find hydrocortisone cream at cvs pharmacy/i }),
+    ).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'When to get more care' })).toBeInTheDocument();
     expect(screen.getByText(/this is not a diagnosis/i)).toBeInTheDocument();
 
@@ -88,21 +116,33 @@ describe('the whole demo, end to end', () => {
     expect(screen.getByText('Visit summary saved')).toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: /previous visits/i }));
     expect(
-      screen.getByText('MinuteTwin visit today: rash. Summary sent to NP.'),
+      screen.getByText('MinuteTwin visit, Oct 22, 2:15 PM: rash. Summary sent to NP.'),
     ).toBeInTheDocument();
   });
 
-  it('"Verify another way" lets the caregiver enter their ID details', async () => {
+  it('"Enter manually" lets the caregiver type their ID details', async () => {
     const user = start();
     await addSarah(user, { manual: true });
     expect(await screen.findByText('Sarah approved your access')).toBeInTheDocument();
   });
 
-  it('uses the icon picked for Sarah everywhere', async () => {
+  it('keeps the default airplane icon for Sarah when nothing else is picked', async () => {
+    const user = start();
+    await addSarah(user);
+    const tile = await sarahTile();
+    expect(tile.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'airplane');
+  });
+
+  it('uses the icon picked for Sarah on My Fam, the dashboard header and the banner', async () => {
     const user = start();
     await addSarah(user, { icon: 'Moon' });
-    await openSarahsHealth(user);
-    expect(screen.getByRole('link', { name: /switch profile/i })).toBeInTheDocument();
+    const tile = await sarahTile();
+    expect(tile.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'moon');
+    await user.click(tile);
+    const header = screen.getByRole('link', { name: /switch profile/i });
+    expect(header.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'moon');
+    const banner = screen.getByText(/as caregiver/).closest('p');
+    expect(banner.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'moon');
   });
 
   it('My Fam: You tile first, the picker opens Sarah’s visit, header icons are demo-only', async () => {
@@ -111,7 +151,9 @@ describe('the whole demo, end to end', () => {
     await screen.findByText('Sarah approved your access');
     const tiles = screen.getAllByRole('listitem');
     expect(tiles[0]).toHaveTextContent('You');
-    expect(screen.getByText('Add a parent or anyone you care for')).toBeInTheDocument();
+    expect(tiles[0]).toHaveTextContent('Your health');
+    expect(tiles[0]).toHaveTextContent('Account owner');
+    expect(screen.getByText('Add a parent or loved one')).toBeInTheDocument();
     expect(screen.queryByText(/AI NP/)).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Cart' }));
     expect(screen.getByText('Not part of this demo')).toBeInTheDocument();
@@ -121,18 +163,24 @@ describe('the whole demo, end to end', () => {
     expect(screen.getByText(/What's going on with Sarah today/)).toBeInTheDocument();
   });
 
-  it('quick start "Cold or flu" follows the cold path to a summary card', async () => {
+  it('quick start "Cold or flu" fills in only after a tap, then follows the cold path', async () => {
     const user = start();
     await addSarah(user);
     await openSarahsHealth(user);
     await user.click(screen.getByRole('link', { name: 'Start a MinuteTwin visit' }));
-    await user.click(screen.getByRole('button', { name: 'Cold or flu' }));
+    const cold = screen.getByRole('button', { name: 'Cold or flu' });
+    expect(cold).toHaveAttribute('aria-pressed', 'false');
+    await user.click(cold);
+    expect(cold).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByLabelText('Message')).toHaveValue(
       'Hi, my mother Sarah has a cough and a runny nose.',
     );
     await user.click(screen.getByRole('button', { name: 'Send' }));
     await screen.findByText(/coughing anything up/);
     await user.click(screen.getByRole('button', { name: 'Send' }));
+    expect(
+      await screen.findByText("Checked Sarah's medications: no recent changes."),
+    ).toBeInTheDocument();
     await user.click(await screen.findByRole('link', { name: 'View summary' }));
     expect(screen.getByRole('heading', { name: 'Likely common cold' })).toBeInTheDocument();
   });
@@ -174,12 +222,11 @@ describe('the whole demo, end to end', () => {
     await user.click(screen.getByRole('link', { name: /add someone/i }));
     expect(await axe(document.body)).toHaveNoViolations();
     await user.click(screen.getByRole('button', { name: 'Next' }));
+    await screen.findByText("We found Sarah's account");
     expect(await axe(document.body)).toHaveNoViolations();
     await user.click(screen.getByRole('link', { name: "Yes, that's her" }));
     expect(await axe(document.body)).toHaveNoViolations();
-    await user.click(screen.getByRole('button', { name: 'Scan front of ID' }));
-    await user.click(await screen.findByRole('button', { name: 'Scan back of ID' }));
-    await user.click(await screen.findByRole('button', { name: 'Take selfie' }));
+    await scanAndSelfie(user);
     await screen.findByRole('heading', { name: "You're verified" });
     expect(await axe(document.body)).toHaveNoViolations();
     await user.click(screen.getByRole('button', { name: 'Send request to Sarah' }));

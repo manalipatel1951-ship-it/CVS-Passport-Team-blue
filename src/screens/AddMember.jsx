@@ -35,7 +35,7 @@ export default function AddMember() {
   };
 
   return (
-    <PhoneShell title="Who are you adding?" back="/fam" actions={<HeaderHeart />}>
+    <PhoneShell title="Who are you adding?" back="/fam" titleIcon={<HeaderHeart />}>
       <PassportHero step={1} intro="We'll use this to find their CVS account." />
       <form onSubmit={next} noValidate className="flex flex-1 flex-col gap-5">
         <TextField
@@ -67,7 +67,7 @@ export default function AddMember() {
 
         <fieldset>
           <legend className="mb-2 text-base font-semibold text-ink">They are my…</legend>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-5 gap-1.5">
             {relationships.map((r) => (
               <label key={r} className="cursor-pointer">
                 <input
@@ -78,7 +78,7 @@ export default function AddMember() {
                   onChange={update('relationship')}
                   className="peer sr-only"
                 />
-                <span className="flex min-h-12 items-center rounded-full border-2 border-line bg-white px-5 text-lg text-ink peer-checked:border-cvs-blue peer-checked:bg-cvs-blue peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cvs-blue">
+                <span className="flex min-h-12 items-center justify-center rounded-full border-2 border-line bg-white px-1 text-base text-ink peer-checked:border-cvs-blue peer-checked:bg-cvs-blue peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-cvs-blue">
                   {r}
                 </span>
               </label>

@@ -25,6 +25,10 @@ function List({ title, items }) {
   );
 }
 
+// Icon for each action row on the summary.
+const actionIcon = (label) =>
+  label.startsWith('Find') ? 'cart' : label.startsWith('Book') ? 'calendar' : 'share';
+
 const formatDateTime = (iso) =>
   new Date(iso).toLocaleString('en-US', {
     weekday: 'short',
@@ -63,14 +67,17 @@ export default function Summary() {
       gray
     >
       <div className="flex flex-col gap-4">
-        <p
-          role="status"
-          className="flex items-start gap-2 rounded-2xl border-2 border-emerald-700 bg-emerald-50 p-3 text-base font-semibold text-emerald-900"
-        >
-          <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={3} />
-          Sent to {lovedOne.firstName}&apos;s account and a MinuteClinic nurse practitioner for
-          review. We&apos;ll let you know when it&apos;s been reviewed.
-        </p>
+        <div role="status" className="rounded-2xl border-2 border-emerald-700 bg-emerald-50 p-3">
+          <p className="flex items-start gap-2 text-base font-semibold text-emerald-900">
+            <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0" strokeWidth={3} />
+            Sent to {lovedOne.firstName}&apos;s account and a MinuteClinic nurse practitioner for
+            review. We&apos;ll let you know when it&apos;s been reviewed.
+          </p>
+          <p className="ml-7 mt-2 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-0.5 text-sm font-semibold text-amber-900">
+            <span aria-hidden="true" className="h-2 w-2 rounded-full bg-amber-500" />
+            NP review: Pending
+          </p>
+        </div>
 
         {twin.escalation && <EscalationAlert level={twin.escalation} />}
 
@@ -102,9 +109,18 @@ export default function Summary() {
 
         <div className="flex flex-col gap-3">
           {summary.actions.map((label) => (
-            <BigButton key={label} variant="secondary" onClick={() => showNotice()}>
-              {label}
-            </BigButton>
+            <button
+              key={label}
+              type="button"
+              onClick={() => showNotice()}
+              className="flex h-16 w-full items-center gap-3 rounded-2xl border border-line bg-white px-4 text-left text-base leading-5 font-semibold text-cvs-blue shadow-sm"
+            >
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cvs-blue-light">
+                <Icon name={actionIcon(label)} className="h-5 w-5" />
+              </span>
+              <span className="flex-1">{label}</span>
+              <Icon name="chevron" className="h-5 w-5 shrink-0" />
+            </button>
           ))}
         </div>
 

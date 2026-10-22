@@ -28,7 +28,7 @@ export default function ManualEntry() {
   };
 
   return (
-    <PhoneShell title="Enter your ID details" back="/fam/add/verify" actions={<HeaderHeart />}>
+    <PhoneShell title="Enter your ID details" back="/fam/add/verify" titleIcon={<HeaderHeart />}>
       <PassportHero
         step={2}
         intro="Type the details from your own driver's license or ID."

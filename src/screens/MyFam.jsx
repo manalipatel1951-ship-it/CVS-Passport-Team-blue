@@ -13,31 +13,40 @@ import { existingFamily } from '../data/family.js';
 import { DELAYS } from '../config/demo.js';
 import { useAppState } from '../state/AppState.jsx';
 
-// One tile in the profile picker: big icon, name, relationship and access status.
-function Tile({ person, label, status, isNew, size = 'lg' }) {
+const TAG_STYLES = {
+  Pending: 'bg-amber-100 text-amber-900',
+  'Full access': 'bg-emerald-100 text-emerald-900',
+  'Account owner': 'bg-white text-ink-soft border border-line',
+};
+
+/**
+ * One profile tile. Every tile has the same structure and height so the rows line up:
+ * icon · name · subtitle · tag.
+ */
+function Tile({ art, name, subtitle, tag, isNew }) {
   return (
-    <span className="flex flex-col items-center gap-1 text-center">
+    <span className="flex w-full flex-col items-center text-center">
       <span className="relative">
-        <ProfileIcon
-          icon={person.icon}
-          size={size}
-          className={isNew ? 'ring-4 ring-cvs-blue ring-offset-2' : ''}
-        />
+        {art}
         {isNew && (
-          <span className="absolute -right-2 -top-2 rounded-full bg-cvs-red px-2 py-0.5 text-sm font-bold text-white">
+          <span className="absolute -right-2 -top-2 rounded-full bg-cvs-red px-1.5 text-[13px] font-bold leading-5 text-white">
             New
           </span>
         )}
       </span>
-      <span className="mt-1 text-lg font-bold text-ink">{label ?? person.firstName}</span>
-      {person.relationship && <span className="text-sm text-ink-soft">{person.relationship}</span>}
-      {status && (
-        <span
-          className={`rounded-full px-2 py-0.5 text-sm font-semibold ${status === 'Pending' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'}`}
-        >
-          {status}
-        </span>
-      )}
+      <span className="mt-1.5 h-6 whitespace-nowrap text-base font-bold leading-6 text-ink">
+        {name}
+      </span>
+      <span className="h-5 text-sm leading-5 text-ink-soft">{subtitle}</span>
+      <span className="mt-1 flex h-6 items-center">
+        {tag && (
+          <span
+            className={`whitespace-nowrap rounded-full px-1.5 text-[13px] font-semibold leading-6 ${TAG_STYLES[tag]}`}
+          >
+            {tag}
+          </span>
+        )}
+      </span>
     </span>
   );
 }
@@ -51,7 +60,8 @@ export default function MyFam() {
   const [picking, setPicking] = useState(false);
   const pending = lovedOne?.status === 'pending';
   const approved = lovedOne?.status === 'approved';
-  const you = { icon: caregiver.icon };
+  const youArt = <ProfileIcon icon={caregiver.icon} size="tile" />;
+  const ring = (isNew) => (isNew ? 'ring-4 ring-cvs-blue ring-offset-2' : '');
 
   // Step 3: the loved one approves on their side (not built). Simulated after a few seconds.
   useEffect(() => {
@@ -75,6 +85,8 @@ export default function MyFam() {
     }
   };
 
+  const tileButton = 'flex w-full justify-center rounded-2xl py-1';
+
   return (
     <PhoneShell
       title="My Fam"
@@ -85,27 +97,31 @@ export default function MyFam() {
       overlay={
         picking && (
           <Sheet title="Who needs care?" onClose={() => setPicking(false)}>
-            <ul className="grid grid-cols-3 gap-4">
-              <li className="flex justify-center">
-                <button type="button" onClick={() => pick('you')} className="rounded-2xl p-1">
-                  <Tile person={you} label="You" size="md" />
+            <ul className="grid grid-cols-3 gap-x-2 gap-y-4">
+              <li>
+                <button type="button" onClick={() => pick('you')} className={tileButton}>
+                  <Tile art={youArt} name="You" subtitle="Your health" />
                 </button>
               </li>
               {lovedOne && (
-                <li className="flex justify-center">
-                  <button
-                    type="button"
-                    onClick={() => pick('lovedOne')}
-                    className="rounded-2xl p-1"
-                  >
-                    <Tile person={lovedOne} size="md" />
+                <li>
+                  <button type="button" onClick={() => pick('lovedOne')} className={tileButton}>
+                    <Tile
+                      art={<ProfileIcon icon={lovedOne.icon} size="tile" />}
+                      name={lovedOne.firstName}
+                      subtitle={lovedOne.relationship}
+                    />
                   </button>
                 </li>
               )}
               {existingFamily.map((p) => (
-                <li key={p.id} className="flex justify-center">
-                  <button type="button" onClick={() => pick(p.id)} className="rounded-2xl p-1">
-                    <Tile person={p} size="md" />
+                <li key={p.id}>
+                  <button type="button" onClick={() => pick(p.id)} className={tileButton}>
+                    <Tile
+                      art={<ProfileIcon icon={p.icon} size="tile" />}
+                      name={p.firstName}
+                      subtitle={p.relationship}
+                    />
                   </button>
                 </li>
               ))}
@@ -115,7 +131,7 @@ export default function MyFam() {
                 to="/fam/add"
                 className="mt-5 flex min-h-12 items-center justify-center text-lg font-semibold text-cvs-blue underline"
               >
-                Add a parent or anyone you care for
+                Add a parent or loved one
               </Link>
             )}
           </Sheet>
@@ -124,7 +140,7 @@ export default function MyFam() {
     >
       {showPending && (
         <div role="status" className="mb-5 rounded-2xl bg-white p-4 shadow-sm">
-          <StepIndicator step={3} />
+          <StepIndicator step={3} progress={0.5} />
           <p className="mt-3 text-lg font-bold text-ink">Request sent to {lovedOne.firstName}</p>
           <p className="mt-1 text-base text-ink-soft">
             Waiting for {lovedOne.firstName} to approve your access…
@@ -137,68 +153,89 @@ export default function MyFam() {
         </Banner>
       )}
 
-      <h2 className="text-3xl font-bold text-ink">Who are you caring for today?</h2>
+      <h2 className="text-2xl font-bold text-ink">Who are you caring for today?</h2>
       {!showPending && !showApproved && (
-        <p className="mt-1 text-lg text-ink-soft">Tap someone to see their health info.</p>
+        <p className="mt-1 text-base text-ink-soft">Tap someone to see their health info.</p>
       )}
 
-      <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-6">
-        <li className="flex justify-center">
-          <button type="button" onClick={() => showNotice()} className="rounded-2xl p-1">
-            <Tile person={you} label="You" />
+      <ul className="mt-4 grid grid-cols-3 gap-x-1 gap-y-3">
+        <li>
+          <button type="button" onClick={() => showNotice()} className={tileButton}>
+            <Tile art={youArt} name="You" subtitle="Your health" tag="Account owner" />
           </button>
         </li>
         {lovedOne && (
-          <li className="flex justify-center">
+          <li>
             {approved ? (
-              <Link to={`/care/${lovedOne.id}`} className="rounded-2xl p-1">
-                <Tile person={lovedOne} status="Full access" isNew={justAdded} />
+              <Link to={`/care/${lovedOne.id}`} className={tileButton}>
+                <Tile
+                  art={<ProfileIcon icon={lovedOne.icon} size="tile" className={ring(justAdded)} />}
+                  name={lovedOne.firstName}
+                  subtitle={lovedOne.relationship}
+                  tag="Full access"
+                  isNew={justAdded}
+                />
               </Link>
             ) : (
               <button
                 type="button"
                 onClick={() => showNotice(`Waiting for ${lovedOne.firstName} to approve`)}
-                className="rounded-2xl p-1"
+                className={tileButton}
               >
-                <Tile person={lovedOne} status="Pending" isNew={justAdded} />
+                <Tile
+                  art={<ProfileIcon icon={lovedOne.icon} size="tile" className={ring(justAdded)} />}
+                  name={lovedOne.firstName}
+                  subtitle={lovedOne.relationship}
+                  tag="Pending"
+                  isNew={justAdded}
+                />
               </button>
             )}
           </li>
         )}
         {existingFamily.map((p) => (
-          <li key={p.id} className="flex justify-center">
-            <button type="button" onClick={() => showNotice()} className="rounded-2xl p-1">
-              <Tile person={p} status="Full access" />
+          <li key={p.id}>
+            <button type="button" onClick={() => showNotice()} className={tileButton}>
+              <Tile
+                art={<ProfileIcon icon={p.icon} size="tile" />}
+                name={p.firstName}
+                subtitle={p.relationship}
+                tag="Full access"
+              />
             </button>
           </li>
         ))}
-        <li className="flex justify-center">
-          <Link
-            to="/fam/add"
-            className="flex max-w-40 flex-col items-center gap-1 rounded-2xl p-1 text-center"
-          >
-            <span
-              aria-hidden="true"
-              className="flex h-28 w-28 items-center justify-center rounded-3xl border-2 border-dashed border-cvs-blue bg-white text-5xl text-cvs-blue"
-            >
-              +
+        <li>
+          <Link to="/fam/add" className={tileButton}>
+            <span className="flex w-full flex-col items-center text-center">
+              <span
+                aria-hidden="true"
+                className="flex h-15 w-15 items-center justify-center rounded-2xl border-2 border-dashed border-cvs-blue bg-white text-4xl text-cvs-blue"
+              >
+                +
+              </span>
+              <span className="mt-1.5 h-6 whitespace-nowrap text-base font-bold leading-6 text-cvs-blue">
+                Add someone
+              </span>
+              {/* Helper spans the subtitle + tag lines, so this tile matches the others' height */}
+              <span className="flex h-12 items-start text-sm leading-5 text-ink-soft">
+                Add a parent or loved one
+              </span>
             </span>
-            <span className="mt-1 text-lg font-bold text-cvs-blue">Add someone</span>
-            <span className="text-sm text-ink-soft">Add a parent or anyone you care for</span>
           </Link>
         </li>
       </ul>
 
       {/* MinuteTwin teaser (Flow 2) */}
-      <section className="mb-6 mt-8 rounded-3xl bg-cvs-blue-light p-5">
+      <section className="mb-4 mt-6 rounded-3xl bg-cvs-blue-light p-4">
         <p className="flex items-center gap-2 text-xl font-bold text-ink">
           MinuteTwin <AIBadge />
         </p>
-        <p className="mt-2 text-base text-ink">
+        <p className="mt-1 text-base text-ink">
           Talk to MinuteTwin, our AI care assistant trained by MinuteClinic nurse practitioners.
           Help with everyday concerns like rashes, colds, and allergies, no clinic visit needed.
         </p>
-        <div className="mt-4">
+        <div className="mt-3">
           <BigButton onClick={() => setPicking(true)} full={false}>
             Start a MinuteTwin visit
           </BigButton>

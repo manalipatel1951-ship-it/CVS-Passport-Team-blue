@@ -20,6 +20,7 @@ export const demoLovedOne = {
   lastName: 'Miller',
   dateOfBirth: '04/12/1958', // US format MM/DD/YYYY
   relationship: 'Mom',
+  area: 'Chicago, IL area', // shown on "Is this Sarah?"
   icon: 'airplane',
 };
 

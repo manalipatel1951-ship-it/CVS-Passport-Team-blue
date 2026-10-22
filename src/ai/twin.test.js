@@ -35,8 +35,9 @@ describe('MinuteTwin script engine', () => {
 
     let parts;
     ({ state, parts } = play([{ type: 'photo', caption: state.prefill }], state));
-    expect(parts[0].text).toMatch(/quick video call/);
-    expect(parts[0].action).toBe('video');
+    expect(parts[0].medsCheck).toBe("Checked Sarah's medications: no recent changes.");
+    expect(parts[1].text).toMatch(/quick video call/);
+    expect(parts[1].action).toBe('video');
     expect(state.waiting).toBe('video');
     expect(getVideoLines(state, NAME)[0]).toMatch(/closer to the rash on Sarah's left upper arm/);
 

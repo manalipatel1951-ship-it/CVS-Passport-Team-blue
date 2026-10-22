@@ -11,6 +11,7 @@ import { useAppState } from '../state/AppState.jsx';
  * - back:       where Back goes (a route like "/fam"), true for "previous screen",
  *               or false to hide it (only for home-like screens and the video call)
  * - leading:    element shown instead of the Back button (e.g. a profile icon)
+ * - titleIcon:  small icon just left of the title (e.g. the CVS heart on Caregiver Passport steps)
  * - actions:    elements on the right of the top bar (e.g. round icon buttons)
  * - banner:     optional element under the top bar (e.g. "Viewing Sarah's health as caregiver")
  * - footer:     optional element pinned to the bottom (e.g. bottom navigation, chat box)
@@ -23,6 +24,7 @@ export default function PhoneShell({
   title,
   back = true,
   leading,
+  titleIcon,
   actions,
   banner,
   footer,
@@ -36,28 +38,31 @@ export default function PhoneShell({
   return (
     <div className="flex h-dvh justify-center sm:items-center sm:py-6">
       <div
-        className={`relative flex h-dvh w-full max-w-[430px] flex-col overflow-hidden sm:h-[min(900px,calc(100dvh-3rem))] sm:rounded-[2rem] sm:border sm:border-line sm:shadow-xl ${gray ? 'bg-canvas' : 'bg-white'}`}
+        className={`safe-area relative flex h-dvh w-full max-w-[430px] flex-col overflow-hidden sm:h-[min(900px,calc(100dvh-3rem))] sm:rounded-[2rem] sm:border sm:border-line sm:shadow-xl ${gray ? 'bg-canvas' : 'bg-white'}`}
       >
         {(!hideHeader || banner) && (
           <header>
             {!hideHeader && (
-              <div className="flex min-h-16 items-center gap-2 border-b border-line bg-white px-2">
+              <div className="flex min-h-16 items-center gap-2 border-b border-line bg-white px-4 py-2">
                 {leading ??
                   (back !== false && <BackButton to={back === true ? undefined : back} />)}
                 {title && (
-                  <h1
-                    className={`min-w-0 flex-1 pr-1 text-xl leading-tight font-bold text-ink ${!leading && back === false ? 'pl-2' : ''}`}
-                  >
-                    {title}
+                  <h1 className="flex min-w-0 flex-1 items-center gap-2 text-xl leading-tight font-bold text-ink">
+                    {titleIcon}
+                    <span className="min-w-0">{title}</span>
                   </h1>
                 )}
-                {actions && <div className="ml-auto flex shrink-0 gap-1">{actions}</div>}
+                {actions && (
+                  <div className="ml-auto flex shrink-0 items-center gap-1">{actions}</div>
+                )}
               </div>
             )}
             {banner}
           </header>
         )}
-        <main className={`flex flex-1 flex-col overflow-y-auto ${bare ? '' : 'px-4 py-5'}`}>
+        <main
+          className={`no-scrollbar flex flex-1 flex-col overflow-y-auto ${bare ? '' : 'px-4 py-5'}`}
+        >
           {children}
         </main>
         {footer && <footer>{footer}</footer>}

@@ -4,8 +4,8 @@
 Update this file at the end of every step, before committing.
 
 ## Current status
-Both flows work end to end, and Manali's feedback round 2 has been applied (see the 2026-10-22 log entry).
-**Next:** Manali reviews round 2.
+Both flows work end to end, and Manali's feedback round 3 has been applied (see the log).
+**Next:** Manali reviews round 3.
 
 ## Screens
 | Screen | Route | File |
@@ -13,9 +13,9 @@ Both flows work end to end, and Manali's feedback round 2 has been applied (see 
 | Splash animation (over Welcome) → Welcome | `/` | `src/screens/Splash.jsx`, `Welcome.jsx` |
 | My Fam (home / profile picker; Pending → approved; "Who needs care?") | `/fam` | `MyFam.jsx` |
 | Who are you adding? (Step 1 of 3) | `/fam/add` | `AddMember.jsx` |
-| We found Sarah's account | `/fam/add/found` | `FoundAccount.jsx` |
+| Is this Sarah? (searching → found card) | `/fam/add/found` | `FoundAccount.jsx` |
 | Verify it's you: ID front → back → selfie (Step 2 of 3) | `/fam/add/verify` | `ScanId.jsx` |
-| Verify another way → enter your ID details | `/fam/add/manual` | `ManualEntry.jsx` |
+| Enter manually (your own ID details) | `/fam/add/manual` | `ManualEntry.jsx` |
 | You're verified (stamp, timeline, pick an icon) | `/fam/add/verified` | `Verified.jsx` |
 | Sarah's Health (Your Health tab) | `/care/sarah` | `Dashboard.jsx` |
 | A record (Prescriptions, Previous visits, …) | `/care/sarah/records/:recordId` | `RecordDetail.jsx` |
@@ -40,7 +40,9 @@ Both flows work end to end, and Manali's feedback round 2 has been applied (see 
   88/538 of the width (`src/components/CvsLogo.jsx`). That's how the splash and header heart clip it.
 
 ## Polish notes (ideas, not yet requested)
-- Verify steps: the privacy note sits just below the fold on a 375×740 phone (the camera is taller now).
+- Verify steps: the privacy note can sit just below the fold on small phones (375×740), because the camera is large.
+- My Fam at 375×740: the MinuteTwin card's button needs a small scroll (it fits on taller phones).
+- Sarah's Health header: "Sarah's Health" wraps onto two lines at 375px wide next to the three round icons.
 - Script text says "her" (written for Sarah). Make it neutral if the loved one changes.
 
 ## Log
@@ -87,3 +89,21 @@ Both flows work end to end, and Manali's feedback round 2 has been applied (see 
   - Dashboard: new illustration and card text. "Visit summary saved" banner after Close.
   - Fixes found in browser checks: logo had a white box on light blue (made transparent), and main
     buttons were below the fold (now pinned).
+- **2026-10-22: Feedback round 3 applied.**
+  - My Fam: three columns, uniform tiles (You: "Your health" / "Account owner"; "Add a parent or loved one"),
+    equal header padding, safe-area fix for iPhone notch (the cause of clipped header icons).
+  - Scrollbars hidden inside the phone frame and the chat text box.
+  - Passport: header heart moved left of the title. Relationship chips on one row. "Is this Sarah?" with a
+    searching moment, person icon, Chicago area and privacy line.
+  - Verify: short per-step headlines, Front/Back/Selfie icon row, "Front"/"Back" labels, "Scan front"/"Scan back",
+    "Enter manually" · "Verify in store" links (no pop-up). Selfie: wider portrait camera, liveness runs when the camera
+    opens (it was hidden below the fold before), then Take selfie → Matching → success.
+  - You're verified: no checklist box, timeline subline "ID and selfie matched", picker fits above the button,
+    progress bar fills through step 2 (in thirds) and shows a check when done.
+  - Icon bug ("moon instead of airplane"): couldn't reproduce. Likely an accidental tap while scrolling over the
+    half-hidden picker. The picker now fits without scrolling, and tests check the icon on My Fam, header and banner.
+  - Chat: quick starts outlined until tapped, pill-icon medication card on every path, video icon on Start video call.
+  - Summary: fixed demo time (Thu, Oct 22, 2026, 2:15 PM, also in Previous visits), "NP review: Pending" tag,
+    identical action rows, "…at CVS Pharmacy".
+  - Video: blurred clinic background, redrawn professional NP with stethoscope and "MinuteTwin" badge, placed
+    so the badge stays clear of captions and buttons.

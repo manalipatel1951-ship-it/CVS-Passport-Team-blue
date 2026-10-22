@@ -83,13 +83,23 @@ export default function Chat() {
     else if (text) sendToTwin({ type: 'text', text });
   };
 
-  const quickStart = (pathId) => {
-    chooseStart(pathId);
+  const quickStart = (pathId, label) => {
+    chooseStart(pathId, label);
     inputRef.current?.focus();
   };
 
   const renderTwin = (m) => {
     if (m.summaryCard) return summary && <SummaryCard summary={summary} to={`${base}/summary`} />;
+    if (m.medsCheck) {
+      return (
+        <p className="flex max-w-[88%] items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 text-sm text-ink">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-cvs-red-light text-cvs-red">
+            <Icon name="pill" className="h-5 w-5" />
+          </span>
+          {m.medsCheck}
+        </p>
+      );
+    }
     return (
       <>
         <p className={bubbleTwin}>{m.text}</p>
@@ -100,6 +110,7 @@ export default function Chat() {
         )}
         {m.action === 'video' && twin.waiting === 'video' && (
           <BigButton onClick={() => navigate(`${base}/video`)} full={false}>
+            <Icon name="video" className="mr-2 h-6 w-6" />
             Start video call
           </BigButton>
         )}
@@ -167,7 +178,7 @@ export default function Chat() {
                     ? 'Add a caption'
                     : 'Type a message'
               }
-              className="max-h-36 min-h-12 min-w-0 flex-1 resize-none rounded-3xl border-2 border-line px-4 py-2.5 text-base leading-snug"
+              className="no-scrollbar max-h-36 min-h-12 min-w-0 flex-1 resize-none rounded-3xl border-2 border-line px-4 py-2.5 text-base leading-snug"
             />
             <button
               type="submit"
@@ -193,8 +204,8 @@ export default function Chat() {
               <button
                 key={q.label}
                 type="button"
-                onClick={() => quickStart(q.pathId)}
-                aria-pressed={twin.chosenPathId === q.pathId && chatInput !== ''}
+                onClick={() => quickStart(q.pathId, q.label)}
+                aria-pressed={twin.tappedStart === q.label}
                 className="min-h-12 rounded-full border-2 border-cvs-blue bg-white px-4 text-base font-semibold text-cvs-blue aria-pressed:bg-cvs-blue aria-pressed:text-white"
               >
                 {q.label}

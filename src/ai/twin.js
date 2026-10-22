@@ -6,6 +6,7 @@ import {
   PHOTO_REPLIES,
   paths,
 } from './twinScripts.js';
+import { DEMO } from '../config/demo.js';
 
 // MinuteTwin's "brain": picks the next scripted reply. Pure functions, no real AI.
 
@@ -16,7 +17,8 @@ export const getPath = (pathId) => paths.find((p) => p.id === pathId) ?? null;
 export function initialTwinState(name) {
   return {
     pathId: null, // which script we're following (null until the first message picks one)
-    chosenPathId: 'rash', // path picked with a quick-start button (rash is pre-filled at the start)
+    chosenPathId: null, // path picked with a quick-start button
+    tappedStart: null, // label of the quick-start button that was tapped (shown filled in)
     turn: 0, // next turn of that script
     waiting: 'text', // what MinuteTwin is waiting for: 'text' | 'photo' | 'video' | 'done'
     prefill: fill(getPath('rash').firstMessage, name), // the caregiver's next message, pre-typed
@@ -27,9 +29,14 @@ export function initialTwinState(name) {
 }
 
 // A quick-start button was tapped: pre-fill that path's first message (or clear for "Something else").
-export function chooseQuickStart(pathId, state, name) {
+export function chooseQuickStart(pathId, state, name, label = null) {
   const path = getPath(pathId);
-  return { ...state, chosenPathId: pathId, prefill: path ? fill(path.firstMessage, name) : '' };
+  return {
+    ...state,
+    chosenPathId: pathId,
+    tappedStart: label,
+    prefill: path ? fill(path.firstMessage, name) : '',
+  };
 }
 
 // Whole-word match, ignoring case ("ear" won't match "early").
@@ -45,9 +52,14 @@ export const findPath = (text) => paths.find((p) => mentions(text, p.keywords)) 
 
 // Fill in {name} in every text part of a reply.
 const fillReply = (reply, name) =>
-  reply.map((part) => (part.text ? { ...part, text: fill(part.text, name) } : part));
+  reply.map((part) => ({
+    ...part,
+    ...(part.text && { text: fill(part.text, name) }),
+    ...(part.medsCheck && { medsCheck: fill(part.medsCheck, name) }),
+  }));
 
-const finish = (state) => ({ ...state, waiting: 'done', completedAt: new Date().toISOString() });
+// Visits use a fixed demo date and time (DEMO.visitTime), so the demo always looks the same.
+const finish = (state) => ({ ...state, waiting: 'done', completedAt: DEMO.visitTime });
 
 // Play the next turn of the current path.
 function playTurn(path, state, name) {

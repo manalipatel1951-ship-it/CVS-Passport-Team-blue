@@ -38,6 +38,20 @@ body {
   outline-offset: 2px;
 }
 
+/* Hide scrollbars inside the phone (scrolling still works with touch, trackpad, wheel and keyboard). */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Keep content out of the iPhone notch / status bar and the home indicator. */
+.safe-area {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* Banner that slides in from the top (e.g. "Sarah approved your access"). */
 @keyframes slide-in {
   from {

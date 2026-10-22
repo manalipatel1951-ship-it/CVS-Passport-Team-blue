@@ -10,7 +10,8 @@
 // Each turn is MinuteTwin's reply, plus what happens next:
 //   next.prefill: the caregiver's next message, pre-typed so the presenter just taps Send
 //   next.waiting: 'text' (a message), 'photo' (photo + caption), 'video' (start video call), or 'done'
-// Reply parts: { text } a message · { text, action: 'video' } adds "Start video call" · { summaryCard: true }
+// Reply parts: { text } a message · { text, action: 'video' } adds "Start video call" ·
+//   { medsCheck } a small pill-icon card ("Checked Sarah's medications: …") · { summaryCard: true }
 
 export const GREETING =
   "Hi, I'm MinuteTwin, a digital twin of a MinuteClinic nurse practitioner. I'm AI, not a real person. I can see {name}'s medications and visit history. What's going on with {name} today?";
@@ -58,6 +59,8 @@ export const NUDGES = {
   done: "I've already put together {name}'s visit summary. If anything changes, start a new MinuteTwin visit anytime.",
 };
 
+const MEDS_OK = { medsCheck: "Checked {name}'s medications: no recent changes." };
+
 const SUMMARY_SENT =
   "I've put together a visit summary with what to do and when to get more care. It's been sent to {name}'s account, and a MinuteClinic nurse practitioner will review it too.";
 
@@ -102,7 +105,10 @@ export const paths = [
       {
         reply: [
           {
-            text: `Thanks, that helps. I checked {name}'s medication list, and a common non-drowsy allergy medicine shouldn't interact with her current prescriptions. This sounds like seasonal allergies. ${SUMMARY_SENT}`,
+            medsCheck: "Checked {name}'s medications: no conflicts expected with allergy medicine.",
+          },
+          {
+            text: `Thanks, that helps. A common non-drowsy allergy medicine shouldn't interact with her prescriptions. This sounds like seasonal allergies. ${SUMMARY_SENT}`,
           },
           { summaryCard: true },
         ],
@@ -131,7 +137,11 @@ export const paths = [
         urgentCare: 'If she starts wheezing or has trouble sleeping because of her breathing',
         call911: 'Swelling of face, lips, or tongue, or trouble breathing',
       },
-      actions: ['Find allergy relief at CVS', 'Book a MinuteClinic visit', 'Share summary'],
+      actions: [
+        'Find allergy relief at CVS Pharmacy',
+        'Book a MinuteClinic visit',
+        'Share summary',
+      ],
     },
   },
   {
@@ -153,7 +163,10 @@ export const paths = [
       {
         reply: [
           {
-            text: `Thanks, that helps. I checked {name}'s medication list and there are no recent changes. This looks like a mildly infected scrape. Because of the redness and warmth, I recommend a MinuteClinic visit in the next day or two in case she needs an antibiotic. ${SUMMARY_SENT}`,
+            ...MEDS_OK,
+          },
+          {
+            text: `Thanks, that helps. This looks like a mildly infected scrape. Because of the redness and warmth, I recommend a MinuteClinic visit in the next day or two in case she needs an antibiotic. ${SUMMARY_SENT}`,
           },
           { summaryCard: true },
         ],
@@ -183,7 +196,7 @@ export const paths = [
         urgentCare: 'If the redness spreads past the pen line, there is pus, or she gets a fever',
         call911: 'Red streaks spreading fast with a high fever, confusion, or trouble breathing',
       },
-      actions: ['Book a MinuteClinic visit', 'Find bandages at CVS', 'Share summary'],
+      actions: ['Book a MinuteClinic visit', 'Find bandages at CVS Pharmacy', 'Share summary'],
     },
   },
   {
@@ -211,7 +224,10 @@ export const paths = [
       {
         reply: [
           {
-            text: "Thanks, that helps. I checked {name}'s medication list and there are no recent changes, so a medication reaction is less likely. I'd like to take a closer look to be sure. Can we do a quick video call?",
+            ...MEDS_OK,
+          },
+          {
+            text: "Thanks, that helps. There are no recent changes to {name}'s medications, so a reaction is less likely. I'd like to take a closer look to be sure. Can we do a quick video call?",
             action: 'video',
           },
         ],
@@ -241,7 +257,11 @@ export const paths = [
         urgentCare: 'If it spreads quickly, blisters, or she gets a fever',
         call911: 'Swelling of face, lips, or tongue, or trouble breathing',
       },
-      actions: ['Find hydrocortisone cream at CVS', 'Book a MinuteClinic visit', 'Share summary'],
+      actions: [
+        'Find hydrocortisone cream at CVS Pharmacy',
+        'Book a MinuteClinic visit',
+        'Share summary',
+      ],
     },
   },
   {
@@ -276,7 +296,10 @@ export const paths = [
       {
         reply: [
           {
-            text: `Thanks, that helps. I checked {name}'s medication list and there are no recent changes. This sounds like a common cold. It's caused by a virus, so antibiotics won't help, and most colds get better in 7 to 10 days. ${SUMMARY_SENT}`,
+            ...MEDS_OK,
+          },
+          {
+            text: `Thanks, that helps. This sounds like a common cold. It's caused by a virus, so antibiotics won't help, and most colds get better in 7 to 10 days. ${SUMMARY_SENT}`,
           },
           { summaryCard: true },
         ],
@@ -304,7 +327,11 @@ export const paths = [
         urgentCare: 'If she gets a fever above 101°F or starts wheezing',
         call911: 'Trouble breathing or chest pain',
       },
-      actions: ['Find cold and cough relief at CVS', 'Book a MinuteClinic visit', 'Share summary'],
+      actions: [
+        'Find cold and cough relief at CVS Pharmacy',
+        'Book a MinuteClinic visit',
+        'Share summary',
+      ],
     },
   },
   {
@@ -326,7 +353,10 @@ export const paths = [
       {
         reply: [
           {
-            text: `Thanks, that helps. I checked {name}'s medication list and there are no recent changes. A low fever like this is often from a mild virus. ${SUMMARY_SENT}`,
+            ...MEDS_OK,
+          },
+          {
+            text: `Thanks, that helps. A low fever like this is often from a mild virus. ${SUMMARY_SENT}`,
           },
           { summaryCard: true },
         ],
@@ -354,7 +384,7 @@ export const paths = [
         urgentCare: 'If it reaches 103°F, or she gets a new cough, rash, or burning when she pees',
         call911: 'Confusion, a stiff neck, trouble breathing, or very hard to wake',
       },
-      actions: ['Find acetaminophen at CVS', 'Book a MinuteClinic visit', 'Share summary'],
+      actions: ['Find acetaminophen at CVS Pharmacy', 'Book a MinuteClinic visit', 'Share summary'],
     },
   },
 ];

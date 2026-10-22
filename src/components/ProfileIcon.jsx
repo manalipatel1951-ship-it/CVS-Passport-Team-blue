@@ -110,6 +110,7 @@ export const iconKeys = Object.keys(profileIcons);
 const sizes = {
   sm: 'h-8 w-8 rounded-lg',
   md: 'h-12 w-12 rounded-xl',
+  tile: 'h-15 w-15 rounded-2xl',
   lg: 'h-28 w-28 rounded-3xl',
 };
 
@@ -119,6 +120,7 @@ export default function ProfileIcon({ icon, size = 'md', className = '' }) {
   return (
     <span
       aria-hidden="true"
+      data-icon={icon}
       className={`flex shrink-0 items-center justify-center ${sizes[size]} ${className}`}
       style={{ background: p.bg }}
     >

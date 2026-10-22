@@ -4,19 +4,25 @@ import { CvsHeart } from './CvsLogo.jsx';
 // Branding shared by every Caregiver Passport step: the small CVS heart for the header,
 // and a light blue top section (matching the CVS app hero) behind the step indicator and intro.
 
-export const HeaderHeart = () => <CvsHeart height={26} className="mr-1" />;
+// Sized to match the header title text; placed just left of the title (not top right,
+// where it would look like a favorite button).
+export const HeaderHeart = () => <CvsHeart height={20} />;
 
-export default function PassportHero({ step, intro, art, children }) {
+// `headline`: one short line in bold; `intro`: a plain sentence; `progress`/`done`: see StepIndicator.
+export default function PassportHero({ step, progress, done, headline, intro, art, children }) {
   return (
-    <section className="-mx-4 -mt-5 mb-5 bg-cvs-blue-light px-4 pb-5 pt-4">
-      <StepIndicator step={step} />
-      <div className="mt-4 flex items-center gap-3">
-        <div className="flex-1">
-          {intro && <p className="text-lg text-ink">{intro}</p>}
-          {children}
+    <section className="-mx-4 -mt-5 mb-4 bg-cvs-blue-light px-4 pb-4 pt-3">
+      <StepIndicator step={step} progress={progress} done={done} />
+      {(headline || intro || art || children) && (
+        <div className="mt-3 flex items-center gap-3">
+          <div className="flex-1">
+            {headline && <h2 className="text-xl font-bold leading-tight text-ink">{headline}</h2>}
+            {intro && <p className="text-lg text-ink">{intro}</p>}
+            {children}
+          </div>
+          {art}
         </div>
-        {art}
-      </div>
+      )}
     </section>
   );
 }

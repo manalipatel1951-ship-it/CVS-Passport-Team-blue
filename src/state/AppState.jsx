@@ -116,8 +116,8 @@ export function AppStateProvider({ children }) {
       setPhotoAttached,
       sendToTwin,
       // A quick-start button on the empty chat ("Rash or skin issue", …, "Something else").
-      chooseStart: (pathId) => {
-        const next = chooseQuickStart(pathId, twin, name);
+      chooseStart: (pathId, label) => {
+        const next = chooseQuickStart(pathId, twin, name, label);
         setTwin(next);
         setChatInput(next.prefill);
       },
