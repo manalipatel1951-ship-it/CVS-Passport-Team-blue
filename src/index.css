@@ -1,0 +1,32 @@
+@import 'tailwindcss';
+
+/* Brand colors and fonts. Change a value here and it updates everywhere. */
+@theme {
+  --color-cvs-red: #cc0000;
+  --color-cvs-red-dark: #a30000;
+  --color-cvs-red-light: #fdecec;
+  --color-ink: #1f1f1f;
+  --color-ink-soft: #4a4a4a;
+  --color-line: #e3e3e3;
+  --color-canvas: #f4f4f5;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+html {
+  /* 16px minimum body text (UX rule). */
+  font-size: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Clear keyboard focus ring on everything that can be tapped. */
+:focus-visible {
+  outline: 3px solid var(--color-cvs-red);
+  outline-offset: 2px;
+}

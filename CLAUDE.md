@@ -8,6 +8,7 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 3. `docs/BRIEF.md` — the original project brief
 
 ## How to work
+
 - Act as a Senior Product Manager + Senior Product Designer, not just a coder: question unclear requirements and protect the UX.
 - Teammates may not be deeply technical — explain things in plain language.
 - Ask questions before building if anything is unclear. Plan first, then build.
@@ -16,12 +17,14 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - Keep the project hand-off ready: everything a teammate needs lives in this repo (not in local plans or memory).
 
 ## Product facts
+
 - Caregiver: **Manali**. Loved one: **Sarah (Mom)**. All data is dummy data.
 - No real logins, no real database, no live AI. The NP Digital Twin chat is a "smart fake": keyword-matched, pre-written replies.
 - The Caregiver Passport (Flow 1) must be completed before the NP Digital Twin (Flow 2) is usable.
 - The loved one's approval screens are out of scope.
 
 ## UX rules
+
 - Busy, stressed, working caregivers: simple screens, one main task per screen.
 - Always show whose info is being viewed (e.g. "Viewing Sarah's dashboard as caregiver").
 - The NP Digital Twin is always clearly labeled as AI — never presented as a real person.
@@ -34,6 +37,7 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - Mobile-first and responsive: full-screen on phones, centered phone-width column on tablet/desktop.
 
 ## Definition of done (every step)
+
 - Works at phone width (375px) and on desktop
 - Accessible (WCAG AA: contrast, labels, keyboard, screen-reader names)
 - Automated tests pass (`npm test`), lint clean (`npm run lint`)
