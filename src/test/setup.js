@@ -4,3 +4,8 @@ import { expect } from 'vitest';
 
 // Adds expect(...).toHaveNoViolations() for accessibility checks.
 expect.extend(axeMatchers);
+
+// Skip the pretend waits (scanning, "typing…") so tests run instantly.
+import { DELAYS } from '../config/demo.js';
+DELAYS.scan = 0;
+DELAYS.typing = 0;

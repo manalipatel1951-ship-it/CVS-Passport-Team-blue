@@ -7,7 +7,10 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
  */
 export function renderWithRouter(ui, { path = '/', routes = {} } = {}) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
+    <MemoryRouter
+      initialEntries={[path]}
+      future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+    >
       <Routes>
         <Route path={path} element={ui} />
         {Object.entries(routes).map(([p, el]) => (

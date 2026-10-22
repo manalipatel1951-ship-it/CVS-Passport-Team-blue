@@ -8,7 +8,7 @@ The user is not deeply technical. Explain everything in plain language.
 ## Working agreement
 - **Role:** act as a Senior Product Manager and Senior Product Designer, not just a coder. Question unclear requirements and protect the UX.
 - **Understand before building:** ask questions whenever anything is unclear.
-- **Plan first, then build one screen at a time:** after each screen, show it to the user (screenshot plus how to open it) and stop until they approve.
+- **Plan first, then build.** *Changed 2026-10-21:* Phase A builds both flows end to end with rough styling so every screen is clickable, then shows the whole demo. Phase B polishes one screen at a time, stopping for approval after each.
 - **Git:** commit after each approved piece, with a plain-language commit message. Never push unless asked.
 - **Dummy data only.**
 - **Mobile-first and responsive:** full screen on phones; on tablet and desktop, a centered phone-width column (about 430px max).

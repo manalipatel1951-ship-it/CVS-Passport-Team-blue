@@ -12,7 +12,7 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - Act as a Senior Product Manager + Senior Product Designer, not just a coder: question unclear requirements and protect the UX.
 - Teammates may not be deeply technical — explain things in plain language.
 - Ask questions before building if anything is unclear. Plan first, then build.
-- Build **one screen/step at a time**, show it (screenshot + how to open it), and wait for approval before moving on.
+- **Current approach (changed 2026-10-21):** Phase A: build both flows end to end with rough placeholder styling so every screen is clickable. Show the whole demo. Phase B: polish **one screen at a time**, showing each one (screenshot + how to open it) and waiting for approval before moving on.
 - After each approved step: update `docs/PROGRESS.md`, then **git commit** with a plain-language message. Never push unless asked.
 - Keep the project hand-off ready: everything a teammate needs lives in this repo (not in local plans or memory).
 

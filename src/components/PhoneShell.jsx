@@ -22,17 +22,23 @@ export default function PhoneShell({
   children,
 }) {
   return (
-    <div className="flex min-h-dvh justify-center sm:items-center sm:py-6">
-      <div className="flex min-h-dvh w-full max-w-[430px] flex-col bg-white sm:min-h-0 sm:h-[min(900px,calc(100dvh-3rem))] sm:overflow-hidden sm:rounded-[2rem] sm:border sm:border-line sm:shadow-xl">
-        {!hideHeader && (
-          <header className="flex min-h-14 items-center gap-2 border-b border-line px-2">
-            {back !== false && <BackButton to={back === true ? undefined : back} />}
-            {title && <h1 className="flex-1 truncate pr-2 text-xl font-bold text-ink">{title}</h1>}
+    <div className="flex h-dvh justify-center sm:items-center sm:py-6">
+      <div className="flex h-dvh w-full max-w-[430px] flex-col overflow-hidden bg-white sm:h-[min(900px,calc(100dvh-3rem))] sm:rounded-[2rem] sm:border sm:border-line sm:shadow-xl">
+        {(!hideHeader || banner) && (
+          <header>
+            {!hideHeader && (
+              <div className="flex min-h-14 items-center gap-2 border-b border-line px-2">
+                {back !== false && <BackButton to={back === true ? undefined : back} />}
+                {title && (
+                  <h1 className="flex-1 truncate pr-2 text-xl font-bold text-ink">{title}</h1>
+                )}
+              </div>
+            )}
+            {banner}
           </header>
         )}
-        {banner}
         <main className="flex flex-1 flex-col overflow-y-auto px-4 py-5">{children}</main>
-        {footer}
+        {footer && <footer>{footer}</footer>}
       </div>
     </div>
   );
