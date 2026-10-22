@@ -1,0 +1,9 @@
+---
+description: Caregiver Passport + MinuteTwin project rules (always applied)
+alwaysApply: true
+---
+
+- Follow every rule in `CLAUDE.md` (working style, product facts, naming, UX rules, visual style, definition of done). It is the single source of truth, even though it's named for Claude.
+- Before starting work, read `HANDOFF.md` and `docs/PROGRESS.md` for context, current status and open items.
+- Explain changes in plain language; teammates may not be deeply technical.
+- After each change: run `npm test` and `npm run lint`, check the screen at phone width (375px), add a line to `docs/PROGRESS.md`, update `docs/UAT.md` if a screen changed, then commit. Don't push unless asked.

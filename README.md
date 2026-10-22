@@ -4,7 +4,7 @@ A clickable, phone-sized demo for a class project. It's a student concept, not a
 A caregiver (Manali) gets access to her mom Sarah's health information, then gets help from a clearly
 labeled **AI** nurse practitioner "digital twin". All data and AI replies are fake.
 
-**New to the project?** Read [CLAUDE.md](CLAUDE.md) (rules), then [docs/PROGRESS.md](docs/PROGRESS.md) (what's done and what's next).
+**New to the project?** Start with [HANDOFF.md](HANDOFF.md), then [CLAUDE.md](CLAUDE.md) (rules), then [docs/PROGRESS.md](docs/PROGRESS.md) (what's done and what's next).
 
 ## Run it on your computer
 

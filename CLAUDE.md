@@ -3,6 +3,7 @@
 Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 **Multiple teammates work on this in turn.** Before doing anything, read:
 
+0. `HANDOFF.md`: one-page overview (what it is, how to run it, the demo path, key decisions)
 1. `docs/PROGRESS.md` — what's done, what's next, open questions (the handoff log)
 2. `docs/PLAN.md` — the original build plan (later feedback in `docs/PROGRESS.md` wins over it)
 3. `docs/BRIEF.md` — the original project brief
