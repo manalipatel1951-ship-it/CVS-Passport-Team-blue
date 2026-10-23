@@ -11,13 +11,13 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
 | Screen | Route | File |
 |--------|-------|------|
 | Splash animation (over Welcome) → Welcome | `/` | `src/screens/Splash.jsx`, `Welcome.jsx` |
-| My Fam (home / profile picker; Pending → approved; "Who needs care?") | `/fam` | `MyFam.jsx` |
+| Profile step (first load and after someone is added; no nav; Pending → approved) | `/fam` | `MyFam.jsx` |
 | Who are you adding? (Step 1 of 3) | `/fam/add` | `AddMember.jsx` |
 | Is this Sarah? (searching → found card) | `/fam/add/found` | `FoundAccount.jsx` |
 | Verify it's you: ID front → back → selfie (Step 2 of 3) | `/fam/add/verify` | `ScanId.jsx` |
 | Enter manually (your own ID details) | `/fam/add/manual` | `ManualEntry.jsx` |
 | You're verified (stamp, timeline, pick an icon) | `/fam/add/verified` | `Verified.jsx` |
-| Sarah's Health (Your Health tab) | `/care/sarah` | `Dashboard.jsx` |
+| Sarah's Health (Home tab, nav appears once she is selected) | `/care/sarah` | `Dashboard.jsx` |
 | A record (Prescriptions, Previous visits, …) | `/care/sarah/records/:recordId` | `RecordDetail.jsx` |
 | MinuteTwin chat | `/care/sarah/chat` | `Chat.jsx` |
 | MinuteTwin video call | `/care/sarah/video` | `Video.jsx` |
@@ -26,13 +26,13 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
 
 ## How it works (quick map)
 - **Demo memory:** `src/state/AppState.jsx`. Nothing is saved, so refreshing the page restarts the demo (and replays the splash).
-- **Flow 2 lock:** `src/screens/RequireLovedOne.jsx` sends you to My Fam until Sarah has approved.
+- **Flow 2 lock:** `src/screens/RequireLovedOne.jsx` sends you to the profile step until Sarah has approved.
 - **MinuteTwin scripts:** `src/ai/twinScripts.js` holds all wording, paths and summaries, and is easy to edit.
   `src/ai/twin.js` decides which line comes next.
 - **Animation timings, at the top of each file:** splash `src/screens/Splash.jsx`, stamp
   `src/components/PassportStamp.jsx`, video call `src/screens/Video.jsx`. Other waits are in `src/config/demo.js`.
 - **Real MinuteTwin video later:** set `npVideoSrc` (and captions) in `src/config/media.js`. It replaces
-  the animated illustration (`src/components/NpIllustration.jsx`).
+  the photo at `public/media/minutetwin.png`.
 - **Fake data:** `src/data/` (Manali, Alex, Maya, Sarah's form answers, records).
 - **Look and feel:** colors in `src/index.css`, profile icons in `src/components/ProfileIcon.jsx`,
   illustrations in `src/components/*Illustration.jsx`, references in `reference/`.
@@ -41,7 +41,6 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
 
 ## Polish notes (ideas, not yet requested)
 - Verify steps: the privacy note can sit just below the fold on small phones (375×740), because the camera is large.
-- My Fam at 375×740: the MinuteTwin card's button needs a small scroll (it fits on taller phones).
 - Script text says "her" (written for Sarah). Make it neutral if the loved one changes.
 
 ## Log
@@ -114,3 +113,15 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
   stays 430px wide.
 - **2026-10-22:** Desktop phone matches a regular iPhone (390×844, about 9:19.5) instead of the wider
   430×900 frame. On a short window it shrinks but keeps that shape.
+- **2026-10-22:** The profile step is no longer a tab. It only appears on first load and after someone
+  is added (CVS logo, no MinuteTwin card, no nav). Tapping Sarah opens her existing health page, which
+  is now Home, without the "Viewing as caregiver" banner. Your Health is not part of this demo.
+- **2026-10-22:** The MinuteTwin video call shows the photo in `public/media/minutetwin.png` instead of
+  the drawn illustration. A video file can still replace it through `src/config/media.js`.
+- **2026-10-22:** A new profile keeps the New tag. There is no blue outline on the profile step
+  or on her icon on Home.
+- **2026-10-22:** MinuteTwin's video call uses the new photo (blue scrubs, stethoscope, waving)
+  in `public/media/minutetwin.png`. Checked in the phone frame and at 375px wide: her face and
+  wave stay in view, with the AI label, caption, and call buttons still sitting on top.
+- **2026-10-22:** Sarah's Health no longer shows a title in the top bar. The profile icon stays
+  on the left and the round buttons on the right. Screen readers still hear "Sarah's Health".

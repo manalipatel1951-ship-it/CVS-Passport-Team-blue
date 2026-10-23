@@ -1,9 +1,11 @@
-import NpIllustration from './NpIllustration.jsx';
 import { media } from '../config/media.js';
 
-// MinuteTwin's main video area. Plays the real video once `media.npVideoSrc` is set
-// (see src/config/media.js); until then shows the animated illustration.
-export default function NpMedia({ speaking, nodKey }) {
+// The person on the MinuteTwin video call.
+const MINUTETWIN_PHOTO = './media/minutetwin.png';
+
+// MinuteTwin's main video area. Plays a real video once `media.npVideoSrc` is set
+// (see src/config/media.js). Until then, shows the still photo.
+export default function NpMedia() {
   if (media.npVideoSrc) {
     return (
       <video
@@ -22,5 +24,11 @@ export default function NpMedia({ speaking, nodKey }) {
       </video>
     );
   }
-  return <NpIllustration speaking={speaking} nodKey={nodKey} />;
+  return (
+    <img
+      src={MINUTETWIN_PHOTO}
+      alt=""
+      className="h-full w-full object-cover object-center"
+    />
+  );
 }

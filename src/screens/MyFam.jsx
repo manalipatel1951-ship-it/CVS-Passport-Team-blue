@@ -1,14 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import PhoneShell from '../components/PhoneShell.jsx';
-import BottomNav from '../components/BottomNav.jsx';
-import BigButton from '../components/BigButton.jsx';
 import Banner from '../components/Banner.jsx';
-import Sheet from '../components/Sheet.jsx';
 import ProfileIcon from '../components/ProfileIcon.jsx';
 import StepIndicator from '../components/StepIndicator.jsx';
-import AIBadge from '../components/AIBadge.jsx';
-import { HeaderActions } from '../components/HealthHeader.jsx';
+import { LOGO_SRC } from '../components/CvsLogo.jsx';
 import { existingFamily } from '../data/family.js';
 import { DELAYS } from '../config/demo.js';
 import { useAppState } from '../state/AppState.jsx';
@@ -51,17 +47,15 @@ function Tile({ art, name, subtitle, tag, isNew }) {
   );
 }
 
-// Home screen: Manali picks whose health to look at, like a streaming profile picker.
+// Profile step. Not a tab: it appears on first load (Get started) and again after
+// someone is added. The bottom nav shows up only after a profile is selected.
 export default function MyFam() {
   const { caregiver, lovedOne, justAdded, approveLovedOne, showNotice } = useAppState();
-  const navigate = useNavigate();
   const [bannerClosed, setBannerClosed] = useState(false);
   const closeBanner = useCallback(() => setBannerClosed(true), []);
-  const [picking, setPicking] = useState(false);
   const pending = lovedOne?.status === 'pending';
   const approved = lovedOne?.status === 'approved';
   const youArt = <ProfileIcon icon={caregiver.icon} size="tile" />;
-  const ring = (isNew) => (isNew ? 'ring-4 ring-cvs-blue ring-offset-2' : '');
 
   // Step 3: the loved one approves on their side (not built). Simulated after a few seconds.
   useEffect(() => {
@@ -73,73 +67,14 @@ export default function MyFam() {
   const showPending = justAdded && pending;
   const showApproved = justAdded && approved && !bannerClosed;
 
-  // "Who needs care?": only Sarah's MinuteTwin visit is part of the demo.
-  const pick = (who) => {
-    if (who === 'lovedOne' && approved) {
-      setPicking(false);
-      navigate(`/care/${lovedOne.id}/chat`);
-    } else if (who === 'lovedOne') {
-      showNotice(`Waiting for ${lovedOne.firstName} to approve`);
-    } else {
-      showNotice();
-    }
-  };
-
   const tileButton = 'flex w-full justify-center rounded-2xl py-1';
 
   return (
-    <PhoneShell
-      title="My Fam"
-      back={false}
-      actions={<HeaderActions />}
-      gray
-      footer={<BottomNav active="home" />}
-      overlay={
-        picking && (
-          <Sheet title="Who needs care?" onClose={() => setPicking(false)}>
-            <ul className="grid grid-cols-3 gap-x-2 gap-y-4">
-              <li>
-                <button type="button" onClick={() => pick('you')} className={tileButton}>
-                  <Tile art={youArt} name="You" subtitle="Your health" />
-                </button>
-              </li>
-              {lovedOne && (
-                <li>
-                  <button type="button" onClick={() => pick('lovedOne')} className={tileButton}>
-                    <Tile
-                      art={<ProfileIcon icon={lovedOne.icon} size="tile" />}
-                      name={lovedOne.firstName}
-                      subtitle={lovedOne.relationship}
-                    />
-                  </button>
-                </li>
-              )}
-              {existingFamily.map((p) => (
-                <li key={p.id}>
-                  <button type="button" onClick={() => pick(p.id)} className={tileButton}>
-                    <Tile
-                      art={<ProfileIcon icon={p.icon} size="tile" />}
-                      name={p.firstName}
-                      subtitle={p.relationship}
-                    />
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {!lovedOne && (
-              <Link
-                to="/fam/add"
-                className="mt-5 flex min-h-12 items-center justify-center text-lg font-semibold text-cvs-blue underline"
-              >
-                Add a parent or loved one
-              </Link>
-            )}
-          </Sheet>
-        )
-      }
-    >
+    <PhoneShell hideHeader back={false} gray>
+      <img src={LOGO_SRC} alt="CVS Health" className="h-auto w-44" />
+
       {showPending && (
-        <div role="status" className="mb-5 rounded-2xl bg-white p-4 shadow-sm">
+        <div role="status" className="mt-5 rounded-2xl bg-white p-4 shadow-sm">
           <StepIndicator step={3} progress={0.5} />
           <p className="mt-3 text-lg font-bold text-ink">Request sent to {lovedOne.firstName}</p>
           <p className="mt-1 text-base text-ink-soft">
@@ -148,17 +83,21 @@ export default function MyFam() {
         </div>
       )}
       {showApproved && (
-        <Banner title={`${lovedOne.firstName} approved your access`} onDone={closeBanner}>
-          Tap {lovedOne.firstName} to see her health info.
-        </Banner>
+        <div className="mt-5">
+          <Banner title={`${lovedOne.firstName} approved your access`} onDone={closeBanner}>
+            Tap {lovedOne.firstName} to see her health info.
+          </Banner>
+        </div>
       )}
 
-      <h2 className="text-2xl font-bold text-ink">Who are you caring for today?</h2>
+      <h1 className="mt-8 text-3xl font-bold leading-tight text-ink">
+        Who are you caring for today?
+      </h1>
       {!showPending && !showApproved && (
         <p className="mt-1 text-base text-ink-soft">Tap someone to see their health info.</p>
       )}
 
-      <ul className="mt-4 grid grid-cols-3 gap-x-1 gap-y-3">
+      <ul className="mt-6 grid grid-cols-3 gap-x-1 gap-y-3">
         <li>
           <button type="button" onClick={() => showNotice()} className={tileButton}>
             <Tile art={youArt} name="You" subtitle="Your health" tag="Account owner" />
@@ -169,7 +108,7 @@ export default function MyFam() {
             {approved ? (
               <Link to={`/care/${lovedOne.id}`} className={tileButton}>
                 <Tile
-                  art={<ProfileIcon icon={lovedOne.icon} size="tile" className={ring(justAdded)} />}
+                  art={<ProfileIcon icon={lovedOne.icon} size="tile" />}
                   name={lovedOne.firstName}
                   subtitle={lovedOne.relationship}
                   tag="Full access"
@@ -183,7 +122,7 @@ export default function MyFam() {
                 className={tileButton}
               >
                 <Tile
-                  art={<ProfileIcon icon={lovedOne.icon} size="tile" className={ring(justAdded)} />}
+                  art={<ProfileIcon icon={lovedOne.icon} size="tile" />}
                   name={lovedOne.firstName}
                   subtitle={lovedOne.relationship}
                   tag="Pending"
@@ -225,22 +164,6 @@ export default function MyFam() {
           </Link>
         </li>
       </ul>
-
-      {/* MinuteTwin teaser (Flow 2) */}
-      <section className="mb-4 mt-6 rounded-3xl bg-cvs-blue-light p-4">
-        <p className="flex items-center gap-2 text-xl font-bold text-ink">
-          MinuteTwin <AIBadge />
-        </p>
-        <p className="mt-1 text-base text-ink">
-          Talk to MinuteTwin, our AI care assistant trained by MinuteClinic nurse practitioners.
-          Help with everyday concerns like rashes, colds, and allergies, no clinic visit needed.
-        </p>
-        <div className="mt-3">
-          <BigButton onClick={() => setPicking(true)} full={false}>
-            Start a MinuteTwin visit
-          </BigButton>
-        </div>
-      </section>
     </PhoneShell>
   );
 }

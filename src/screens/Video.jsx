@@ -78,7 +78,7 @@ export default function Video() {
       <h1 className="sr-only">MinuteTwin video visit</h1>
       <div className="relative flex-1 overflow-hidden bg-neutral-900">
         <div className="absolute inset-0">
-          <NpMedia speaking={caption > 0} nodKey={caption === 2 ? 2 : 0} />
+          <NpMedia />
         </div>
 
         {/* Top: status, AI label, whose visit */}

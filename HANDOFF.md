@@ -26,13 +26,13 @@ Open **http://localhost:5173**. On a computer it already sits in a phone shape w
 
 1. **Splash:** CVS heart animation (tap to skip)
 2. **Welcome** → Get started
-3. **My Fam** (home) → Add someone
+3. **Profile step** (no nav bar) → Add someone
 4. **Who are you adding?** (pre-filled with Sarah) → Next
 5. **Is this Sarah?** → Yes, that's her
 6. **Verify it's you:** Scan front → Scan back → selfie (wait for the oval to fill) → Take selfie
 7. **You're verified** → Send request to Sarah
 8. **Approval:** Sarah shows _Pending_, then "Sarah approved your access" after about 3 seconds → tap Sarah
-9. **Sarah's Health** → Start a MinuteTwin visit
+9. **Sarah's Health** (this is Home, and the nav bar appears) → Start a MinuteTwin visit
 10. **MinuteTwin chat:** tap Send → camera button → Send → Start video call
 11. **Video:** ends by itself after about 8 seconds
 12. **Visit summary** → Close → back to **Sarah's Health** ("Visit summary saved", _New_ on Previous visits)
@@ -48,9 +48,9 @@ Open **http://localhost:5173**. On a computer it already sits in a phone shape w
 
 ## 5. Open items
 
-- **Small phones (375×740):** the verify steps' privacy note and My Fam's MinuteTwin button need a short scroll.
+- **Small phones (375×740):** the verify steps' privacy note needs a short scroll.
 - **Placeholders:**
-  - The NP video is an animated illustration. Swap in a real video in `src/config/media.js`.
+  - The video call shows a still photo (`public/media/minutetwin.png`). Swap in a real video in `src/config/media.js`.
   - The rash photo and the illustrations are simple drawings.
   - The other tabs and buttons show "Not part of this demo".
 - **Pronouns:** the scripts say "her", because they were written for Sarah.

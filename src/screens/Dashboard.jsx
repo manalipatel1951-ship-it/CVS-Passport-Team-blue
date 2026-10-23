@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import PhoneShell from '../components/PhoneShell.jsx';
-import ContextBanner from '../components/ContextBanner.jsx';
 import BottomNav from '../components/BottomNav.jsx';
 import BigButton from '../components/BigButton.jsx';
 import AIBadge from '../components/AIBadge.jsx';
@@ -12,7 +11,7 @@ import { HeaderActions, ProfileSwitcher } from '../components/HealthHeader.jsx';
 import { records } from '../data/dashboard.js';
 import { useAppState } from '../state/AppState.jsx';
 
-// Sarah's Health: the "Your Health" tab, the same info Sarah sees in her own CVS app.
+// Home: the selected person's health page. The nav bar lives here, not on the profile step.
 export default function Dashboard() {
   const { lovedOne, setJustAdded, hasNewVisit, justSavedVisit, dismissSavedVisit } = useAppState();
   const base = `/care/${lovedOne.id}`;
@@ -24,25 +23,14 @@ export default function Dashboard() {
 
   return (
     <PhoneShell
-      title={
-        // Never wraps next to the three header icons: slightly smaller text on narrow phones,
-        // and just the first name on very narrow ones (under 350px wide).
-        // Screen readers always hear the full title.
-        <>
-          <span className="sr-only">{lovedOne.firstName}&apos;s Health</span>
-          <span aria-hidden="true" className="whitespace-nowrap text-[17px] min-[400px]:text-xl">
-            <span className="min-[350px]:hidden">{lovedOne.firstName}</span>
-            <span className="hidden min-[350px]:inline">{lovedOne.firstName}&apos;s Health</span>
-          </span>
-        </>
-      }
       leading={<ProfileSwitcher person={lovedOne} />}
       actions={<HeaderActions />}
-      banner={<ContextBanner person={lovedOne} />}
-      footer={<BottomNav active="health" />}
+      footer={<BottomNav active="home" />}
       gray
       bare
     >
+      {/* Not in the top bar. Screen readers still hear whose health page this is. */}
+      <h1 className="sr-only">{lovedOne.firstName}&apos;s Health</h1>
       {justSavedVisit && (
         <div className="px-4 pt-4">
           <Banner title="Visit summary saved" onDone={dismissSavedVisit}>

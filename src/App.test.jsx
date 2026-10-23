@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from './test/axe.js';
 import App from './App.jsx';
@@ -133,34 +133,41 @@ describe('the whole demo, end to end', () => {
     expect(tile.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'airplane');
   });
 
-  it('uses the icon picked for Sarah on My Fam, the dashboard header and the banner', async () => {
+  it('uses the icon picked for Sarah on the profile step and the Home header', async () => {
     const user = start();
     await addSarah(user, { icon: 'Moon' });
     const tile = await sarahTile();
     expect(tile.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'moon');
     await user.click(tile);
-    const header = screen.getByRole('link', { name: /switch profile/i });
+    const header = screen.getByRole('button', { name: /sarah's profile/i });
     expect(header.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'moon');
-    const banner = screen.getByText(/as caregiver/).closest('p');
-    expect(banner.querySelector('[data-icon]')).toHaveAttribute('data-icon', 'moon');
+    expect(screen.queryByText(/as caregiver/)).not.toBeInTheDocument();
   });
 
-  it('My Fam: You tile first, the picker opens Sarah’s visit, header icons are demo-only', async () => {
+  it('profile step has no nav; choosing Sarah opens Home', async () => {
     const user = start();
     await addSarah(user);
     await screen.findByText('Sarah approved your access');
+    expect(screen.queryByRole('navigation', { name: 'Main' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Start a MinuteTwin visit' })).not.toBeInTheDocument();
     const tiles = screen.getAllByRole('listitem');
     expect(tiles[0]).toHaveTextContent('You');
     expect(tiles[0]).toHaveTextContent('Your health');
     expect(tiles[0]).toHaveTextContent('Account owner');
     expect(screen.getByText('Add a parent or loved one')).toBeInTheDocument();
     expect(screen.queryByText(/AI NP/)).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Cart' }));
+
+    await openSarahsHealth(user);
+    expect(screen.getByRole('heading', { name: "Sarah's Health" })).toBeInTheDocument();
+    expect(screen.getByRole('banner')).not.toHaveTextContent(/sarah/i);
+    expect(screen.getByRole('link', { name: 'Home' })).toHaveAttribute('aria-current', 'page');
+    await user.click(screen.getByRole('link', { name: 'Home' }));
+    expect(screen.getByRole('heading', { name: "Sarah's Health" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: /who are you caring for today/i }),
+    ).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Your Health' }));
     expect(screen.getByText('Not part of this demo')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Start a MinuteTwin visit' }));
-    const sheet = screen.getByRole('dialog', { name: 'Who needs care?' });
-    await user.click(within(sheet).getByRole('button', { name: /sarah/i }));
-    expect(screen.getByText(/What's going on with Sarah today/)).toBeInTheDocument();
   });
 
   it('quick start "Cold or flu" fills in only after a tap, then follows the cold path', async () => {
@@ -212,7 +219,8 @@ describe('the whole demo, end to end', () => {
 
   it('MinuteTwin is locked until Sarah has been added and approved', () => {
     start('#/care/sarah/chat');
-    expect(screen.getByRole('heading', { name: 'My Fam' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Who are you caring for today?' })).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: 'Main' })).not.toBeInTheDocument();
   });
 
   it('has no accessibility problems on the main screens', async () => {

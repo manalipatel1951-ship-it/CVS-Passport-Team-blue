@@ -11,13 +11,13 @@ const tabs = [
 
 /**
  * Floating bottom navigation, matching the CVS app.
- * Home = My Fam. Your Health = the loved one's dashboard (once they've approved access).
- * Find Care and Vaccine Records aren't part of this demo.
+ * Home = the selected person's health page. It never opens the profile step.
+ * Your Health, Find Care, and Vaccine Records aren't part of this demo.
  */
 export default function BottomNav({ active }) {
   const { lovedOne, showNotice } = useAppState();
-  const healthTo = lovedOne?.status === 'approved' ? `/care/${lovedOne.id}` : null;
-  const routes = { home: '/fam', health: healthTo };
+  const homeTo = lovedOne?.status === 'approved' ? `/care/${lovedOne.id}` : null;
+  const routes = { home: homeTo };
 
   return (
     <nav aria-label="Main" className="px-3 pb-3 pt-1">
@@ -41,11 +41,7 @@ export default function BottomNav({ active }) {
               ) : (
                 <button
                   type="button"
-                  onClick={() =>
-                    showNotice(
-                      tab.id === 'health' ? 'Add a family member first' : 'Not part of this demo',
-                    )
-                  }
+                  onClick={() => showNotice()}
                   className={className}
                 >
                   {content}

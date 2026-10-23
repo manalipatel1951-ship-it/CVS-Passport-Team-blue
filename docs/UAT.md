@@ -18,10 +18,10 @@ Tick a box when it passes. Update this list whenever a screen changes.
 - [ ] Four bullets with gray circles and red icons, including the lock bullet. **Get started** is always visible
 
 ## Flow 1: Caregiver Passport
-- [ ] My Fam: "My Fam" and the chat/messages/cart icons have equal side padding, are vertically centered, and nothing is cut off at the top (also on an iPhone with a notch)
+- [ ] Profile step (after Get started): CVS Health logo, "Who are you caring for today?", no bottom nav, no chat/messages/cart icons, nothing cut off at the top (also on an iPhone with a notch)
 - [ ] Three-column tiles that all line up (icon, name, subtitle, tag): **You** (Your health · Account owner), Alex (Son · Full access), Maya (Daughter · Full access), **Add someone** ("Add a parent or loved one")
 - [ ] No scrollbar is visible inside the phone on any screen (scrolling still works)
-- [ ] Tapping You, Alex, Maya or a header icon shows "Not part of this demo"
+- [ ] Tapping You, Alex, or Maya shows "Not part of this demo"
 - [ ] **Add someone** → "Who are you adding?" with the small CVS heart just **left of the title**. Step 1 of 3 on a light blue top section
 - [ ] Only first name, last name, date of birth (04/12/1958) and relationship chips, all five on **one row**. Full-width **Next**
 - [ ] Clearing First name or typing a partial date shows a helpful error
@@ -35,20 +35,20 @@ Tick a box when it passes. Update this list whenever a screen changes.
 - [ ] Timeline: "You're verified · ID and selfie matched", then Sarah approves, then "You can see her info"
 - [ ] All of "Pick an icon for Sarah" (two rows) is visible above **Send request to Sarah** without scrolling. Airplane is selected
 - [ ] **Enter manually** → your own ID details → **Verify me** → "You're verified · ID details matched"
-- [ ] My Fam: "Step 3 of 3, Request sent", Sarah **Pending** with a ring and **New**. About 3s later, "Sarah approved your access" slides in and she shows **Full access**
+- [ ] Profile step: "Step 3 of 3, Request sent", Sarah **Pending** with a **New** tag and no blue outline. About 3s later, "Sarah approved your access" slides in and she shows **Full access**. Still no bottom nav. Her icon on Home has no blue outline either
 - [ ] The green banner closes with × and fades out on its own
-- [ ] The airplane (or whichever icon you picked) is Sarah's icon on My Fam, the dashboard header and the caregiver banner
+- [ ] The airplane (or whichever icon you picked) is Sarah's icon on the profile step and on the Home header. Home has no "Viewing as caregiver" banner (chat and the summary still do)
 
 ## Flow 2: MinuteTwin
-- [ ] My Fam card: "Talk to MinuteTwin, our AI care assistant trained by MinuteClinic nurse practitioners…" → **Start a MinuteTwin visit** opens "Who needs care?". Sarah opens her visit, and the others show "Not part of this demo"
-- [ ] Sarah's Health: the title stays on one line next to the three icons, even on a narrow phone (just "Sarah" on the narrowest)
-- [ ] Sarah's Health: illustration, MinuteTwin card ("everyday concerns like rashes, colds, and allergies"), and the profile icon (tap → My Fam)
+- [ ] Tapping Sarah opens **Sarah's Health**, and the bottom nav appears with **Home** selected. Home stays on this page. **Your Health** shows "Not part of this demo"
+- [ ] Sarah's Health: the top bar has the profile icon and the three round buttons, and no "Sarah's Health" title
+- [ ] Sarah's Health: illustration, MinuteTwin card ("everyday concerns like rashes, colds, and allergies"). The profile icon does not open the profile step
 - [ ] Chat opens with MinuteTwin's AI greeting, **outlined** quick-start buttons and "For emergencies, call 911." Tapping one fills it dark blue
 - [ ] The rash message is pre-typed and fully visible, with no scrollbar in the box. **Send** → the quick starts disappear → typing dots → MinuteTwin asks for a photo and details
 - [ ] The camera is highlighted. Tap it: the photo preview appears and the caption is pre-typed. **Send** → one bubble with photo and caption
 - [ ] Pill card "Checked Sarah's medications: no recent changes." then the short message → **Start video call** (with a video camera icon) appears only there
-- [ ] Video: soft blurred clinic background (no red heart or edge panels). A professional NP with a stethoscope and a "MinuteTwin" badge, both clear of the caption and buttons. Glow, breathing and blinking
-- [ ] First caption → the self-view switches to Sarah's arm → second caption with a small nod → the call ends by itself
+- [ ] Video: MinuteTwin is the photo (blue scrubs, stethoscope, waving), filling the screen. "MinuteTwin (AI). Not a real person" stays visible. The caption and buttons sit over the photo
+- [ ] First caption → the self-view switches to Sarah's arm → second caption → the call ends by itself
 - [ ] "Preparing Sarah's visit summary…" → summary: green banner with **NP review: Pending**, "Thu, Oct 22, 2026, 2:15 PM", "Likely contact dermatitis", "Photo and video reviewed", care box, three identical action rows ("Find hydrocortisone cream at CVS Pharmacy", …)
 - [ ] **Close** → Sarah's Health with "Visit summary saved". Previous visits shows **New** and "MinuteTwin visit, Oct 22, 2:15 PM: rash. Summary sent to NP."
 

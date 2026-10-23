@@ -19,10 +19,11 @@ import Summary from './screens/Summary.jsx';
 const care = (screen) => <RequireLovedOne>{screen}</RequireLovedOne>;
 
 // Every screen gets one route here.
-// Flow 1 (Caregiver Passport): / (splash → Welcome) → /fam → /fam/add → /fam/add/found →
-//   /fam/add/verify (or /fam/add/manual) → /fam/add/verified → /fam
-// Flow 2 (MinuteTwin): /care/:id → /care/:id/chat → /care/:id/video → /care/:id/preparing →
-//   /care/:id/summary → Close → /care/:id
+// Flow 1 (Caregiver Passport): / (splash → Welcome) → /fam (profile step, no nav) →
+//   /fam/add → /fam/add/found → /fam/add/verify (or /fam/add/manual) → /fam/add/verified → /fam
+//   Tapping the approved person opens Home.
+// Flow 2 (MinuteTwin): /care/:id (Home) → /care/:id/chat → /care/:id/video →
+//   /care/:id/preparing → /care/:id/summary → Close → /care/:id
 export default function App() {
   return (
     <AppStateProvider>
