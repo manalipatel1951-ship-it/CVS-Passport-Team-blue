@@ -20,7 +20,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:5173**. To see it as a phone, open Chrome DevTools (right-click → Inspect), click the phone icon and pick an iPhone. Refreshing the page restarts the demo.
+Open **http://localhost:5173**. On a computer it already sits in a phone shape with a thick black edge. On a phone it fills that screen. To check a specific phone, open Chrome DevTools (right-click → Inspect), click the phone icon and pick an iPhone. Refreshing the page restarts the demo.
 
 ## 3. The demo path
 

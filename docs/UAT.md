@@ -4,8 +4,8 @@ Walk through each check by hand in the browser, on a phone-sized view (375px wid
 Tick a box when it passes. Update this list whenever a screen changes.
 
 ## General
-- [ ] On a phone-sized view, the app fills the whole screen, with no sideways scrolling
-- [ ] On a desktop window, it's a centered, phone-width column with rounded corners
+- [ ] On a phone-sized view (any phone width, including a phone on its side), the app fills the whole screen, with no sideways scrolling
+- [ ] On a desktop window, it's a centered phone the shape of a regular iPhone (390px wide and 844px tall, rounded corners) with a thick black edge around it. On a short window it shrinks but keeps that shape
 - [ ] Main buttons are dark blue pills, always visible without scrolling. Large red areas appear only for 911/urgent messages
 - [ ] Pressing **Tab** on the keyboard shows a clear outline on whatever is selected
 - [ ] The AI is never called a nurse, "AI nurse" or "AI NP". It's "MinuteTwin (AI)" / "our AI care assistant"

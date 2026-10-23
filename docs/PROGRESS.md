@@ -108,3 +108,9 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
     so the badge stays clear of captions and buttons.
 - **2026-10-22:** Sarah's Health title never wraps: 17px on phones under 400px wide, just "Sarah" under 350px
   (screen readers always hear "Sarah's Health"). Checked at 430/390/375/360/320px.
+- **2026-10-22:** The app fills any phone screen (including a phone on its side). On a computer it stays
+  the same phone size (430px wide, up to 900px tall) with a black outline.
+- **2026-10-22:** Desktop phone edge is thicker (14px), so the shape reads as a phone. The screen inside
+  stays 430px wide.
+- **2026-10-22:** Desktop phone matches a regular iPhone (390×844, about 9:19.5) instead of the wider
+  430×900 frame. On a short window it shrinks but keeps that shape.

@@ -61,7 +61,7 @@ Clickable, phone-sized demo prototype for a class project (CVS Health concept).
 - Features outside the demo (other tabs, header icons, summary actions, "You", Alex/Maya, "Not her?", in-person verification) show a "Not part of this demo" pop-up.
 - Green success banners can be closed with × and fade out on their own.
 - Animations respect the phone's "reduce motion" setting.
-- Mobile-first and responsive: full-screen on phones, centered phone-width column on tablet/desktop.
+- Mobile-first and responsive: full-screen on any phone size. On tablet/desktop, a centered phone the shape of a regular iPhone (390×844) with a thick black edge.
 
 ## Visual style (match `reference/cvs-app-dashboard.png`, but don't copy its illustrations)
 

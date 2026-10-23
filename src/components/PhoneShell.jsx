@@ -3,8 +3,9 @@ import { useAppState } from '../state/AppState.jsx';
 
 /**
  * The phone-sized frame every screen sits in.
- * - Phones: fills the whole screen.
- * - Tablet/desktop: a centered, phone-width column with a soft frame.
+ * - Phones: fills the whole screen, at any phone size.
+ * - Tablet/desktop: a centered phone the shape of a regular iPhone (390×844)
+ *   with a thick black edge.
  *
  * Props:
  * - title:      screen heading shown in the top bar
@@ -36,10 +37,8 @@ export default function PhoneShell({
 }) {
   const { notice } = useAppState();
   return (
-    <div className="flex h-dvh justify-center sm:items-center sm:py-6">
-      <div
-        className={`safe-area relative flex h-dvh w-full max-w-[430px] flex-col overflow-hidden sm:h-[min(900px,calc(100dvh-3rem))] sm:rounded-[2rem] sm:border sm:border-line sm:shadow-xl ${gray ? 'bg-canvas' : 'bg-white'}`}
-      >
+    <div className="phone-stage">
+      <div className={`phone-frame safe-area ${gray ? 'bg-canvas' : 'bg-white'}`}>
         {(!hideHeader || banner) && (
           <header>
             {!hideHeader && (
