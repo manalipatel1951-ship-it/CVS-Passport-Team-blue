@@ -22,9 +22,9 @@ export default function CaregiverIllustration({ className = '' }) {
       <path d="M86 150c0-34 14-58 40-58s40 24 40 58z" fill="#b65d6e" />
       <rect x="96" y="128" width="62" height="24" rx="10" fill="#4a5a78" />
       <circle cx="126" cy="70" r="20" fill="#e2b08e" />
-      <path d="M106 66c0-16 10-24 20-24s20 8 20 24c-4-8-10-10-20-10s-16 2-20 10z" fill="#d9dde3" />
-      <circle cx="104" cy="70" r="6" fill="#d9dde3" />
-      <circle cx="148" cy="70" r="6" fill="#d9dde3" />
+      <path d="M106 66c0-16 10-24 20-24s20 8 20 24c-4-8-10-10-20-10s-16 2-20 10z" fill="#ffffff" />
+      <circle cx="104" cy="70" r="6" fill="#ffffff" />
+      <circle cx="148" cy="70" r="6" fill="#ffffff" />
       <path
         d="M118 80c5 4 11 4 16 0"
         stroke="#8a5a44"

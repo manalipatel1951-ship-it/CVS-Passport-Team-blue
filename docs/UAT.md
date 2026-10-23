@@ -14,7 +14,7 @@ Tick a box when it passes. Update this list whenever a screen changes.
 - [ ] Reload the page: white screen, the red heart fades in and beats twice, then slides left as "CVSHealth" slides out ("lth" first, "CVS" last)
 - [ ] The full logo holds, then glides up into the Welcome screen with no jump, as Welcome fades in. About 2.5 seconds total
 - [ ] Tapping during the splash skips it
-- [ ] Welcome: light blue hero (Concept prototype label, logo with no white box, big "Caregiver Passport", illustration)
+- [ ] Welcome: light blue hero (Concept prototype label, logo with no white box, big "Caregiver Passport", illustration: seated person's hair is white, standing person's hair is dark brown)
 - [ ] Four bullets with gray circles and red icons, including the lock bullet. **Get started** is always visible
 
 ## Flow 1: Caregiver Passport
@@ -42,7 +42,7 @@ Tick a box when it passes. Update this list whenever a screen changes.
 ## Flow 2: MinuteTwin
 - [ ] Tapping Sarah opens **Sarah's Health**, and the bottom nav appears with **Home** selected. Home stays on this page. **Your Health** shows "Not part of this demo"
 - [ ] Sarah's Health: the top bar has the profile icon and the three round buttons, and no "Sarah's Health" title
-- [ ] Sarah's Health: illustration, MinuteTwin card ("everyday concerns like rashes, colds, and allergies"). The profile icon does not open the profile step
+- [ ] Sarah's Health: illustration (seated person's hair is white, standing person's hair is dark brown), MinuteTwin card ("everyday concerns like rashes, colds, and allergies"). The profile icon does not open the profile step
 - [ ] Chat opens with MinuteTwin's AI greeting, **outlined** quick-start buttons and "For emergencies, call 911." Tapping one fills it dark blue
 - [ ] The rash message is pre-typed and fully visible, with no scrollbar in the box. **Send** → the quick starts disappear → typing dots → MinuteTwin asks for a photo and details
 - [ ] The camera is highlighted. Tap it: the photo preview appears and the caption is pre-typed. **Send** → one bubble with photo and caption

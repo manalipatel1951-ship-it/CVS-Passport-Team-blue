@@ -125,3 +125,5 @@ Both flows work end to end, and Manali's feedback round 3 has been applied (see 
   wave stay in view, with the AI label, caption, and call buttons still sitting on top.
 - **2026-10-22:** Sarah's Health no longer shows a title in the top bar. The profile icon stays
   on the left and the round buttons on the right. Screen readers still hear "Sarah's Health".
+- **2026-10-22:** In the Welcome and Sarah's Health illustration, the seated person on the left
+  has white hair and the standing person on the right has dark brown hair.
